@@ -15,6 +15,17 @@ const products = (await getCollection("products")).sort((a, b) => a.data.order -
 import oilModel from "@/assets/images/oil-model.jpg";
 import beautifulOil from "@/assets/images/the-beautiful-oil.jpg";
 import oilDrops from "@/assets/images/oil-drops.jpg";
+import PressLogos from "@/components/content/PressLogos.astro";
+import ArticleCard from "@/components/content/ArticleCard.astro";
+import Grid from "@/components/wrapper/Grid.astro";
+import vogue from "@/assets/images/press/vogue.png";
+import elle from "@/assets/images/press/elle.png";
+import allure from "@/assets/images/press/allure.png";
+import byrdie from "@/assets/images/press/byrdie.png";
+import glamour from "@/assets/images/press/glamour.png";
+import essence from "@/assets/images/press/essence.png";
+import papayaRitual from "@/assets/images/journal/papaya-ritual.jpg";
+import dropperSerum from "@/assets/images/journal/dropper-serum.jpg";
 ---
 
 <Layout>
@@ -115,5 +126,47 @@ import oilDrops from "@/assets/images/oil-drops.jpg";
       ]}
       buttonLabel="Shop all skin care"
     />
+  </Section>
+
+  {/* Journal & press */}
+  <Section theme="cream" paddingBottom="medium" gap="6">
+    <PressLogos
+      logos={[
+        { name: "Vogue", image: vogue },
+        { name: "Elle", image: elle },
+        { name: "Allure", image: allure },
+        { name: "Byrdie", image: byrdie },
+        { name: "Glamour", image: glamour },
+        { name: "Essence", image: essence },
+      ]}
+    />
+    <HeaderSplit
+      title="The Guide"
+      headingVariant="h2"
+      text="Rituals, ingredients and the craft behind every refill."
+    />
+    <Grid medium={3} class="gap-row-6">
+      <ArticleCard
+        category="Ingredients"
+        title="Root of Light, explained"
+        meta="4 min read"
+        image={oilDrops}
+        imageAlt="Two drops of golden oil"
+      />
+      <ArticleCard
+        category="Rituals"
+        title="The three-step daily routine"
+        meta="6 min read"
+        image={papayaRitual}
+        imageAlt="A serum bottle resting in a halved papaya"
+      />
+      <ArticleCard
+        category="Craft"
+        title="Why we refill, not replace"
+        meta="5 min read"
+        image={dropperSerum}
+        imageAlt="A dropper above drops of clear serum"
+      />
+    </Grid>
   </Section>
 </Layout>

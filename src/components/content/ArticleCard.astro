@@ -1,0 +1,99 @@
+---
+import type { HTMLAttributes } from "astro/types";
+import { Image } from "astro:assets";
+import Eyebrow from "@/components/typography/Eyebrow.astro";
+
+type Props = HTMLAttributes<"article"> & {
+  /** Set to `false` to omit the component. */
+  render?: boolean;
+  /** Article title. */
+  title: string;
+  /** Caption under the title, e.g. reading time. */
+  meta?: string;
+  /** Category tag. */
+  category?: string;
+  /** Cover photo. */
+  image: ImageMetadata;
+  /** Cover photo description. */
+  imageAlt?: string;
+  /** Article link. */
+  href?: string;
+};
+
+const {
+  render = true,
+  title,
+  meta,
+  category,
+  image,
+  imageAlt = "",
+  href = "#",
+  class: className,
+  ...rest
+} = Astro.props;
+---
+
+{render && title && image && (
+  <article class:list={["article-card_wrap", className]} {...rest}>
+    <div class="article-card_visual">
+      <Image
+        class="article-card_image"
+        src={image}
+        alt={imageAlt}
+        widths={[480, 720, 1000]}
+        sizes="(width >= 48rem) 33vw, 100vw"
+      />
+    </div>
+    <Eyebrow variant="tag" tone="neutral" tag="span">{category}</Eyebrow>
+    <h3 class="text-style-h5">
+      <a class="article-card_link" href={href}>{title}</a>
+    </h3>
+    {meta && <p class="text-style-caption">{meta}</p>}
+  </article>
+)}
+
+<style is:global>
+  @layer components {
+    .article-card_wrap {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: start;
+      gap: 1rem;
+    }
+
+    .article-card_visual {
+      position: relative;
+      width: 100%;
+      height: 27.5rem;
+      overflow: hidden;
+      background-color: var(--light-200);
+    }
+
+    .article-card_image {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: scale calc(var(--hover-duration) * 3) var(--hover-ease);
+    }
+
+    /* The whole card is the link. */
+    .article-card_link::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+    }
+
+    @media (hover: hover) {
+      .article-card_wrap:hover .article-card_image {
+        scale: 1.03;
+      }
+    }
+
+    .article-card_wrap:focus-within .article-card_image {
+      scale: 1.03;
+    }
+  }
+</style>

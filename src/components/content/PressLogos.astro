@@ -1,0 +1,80 @@
+---
+import type { HTMLAttributes } from "astro/types";
+import { Image } from "astro:assets";
+
+type Logo = {
+  /** Publication name, used as alt text. */
+  name: string;
+  /** Logo artwork on a transparent background. */
+  image: ImageMetadata;
+};
+
+type Props = HTMLAttributes<"div"> & {
+  /** Set to `false` to omit the component. */
+  render?: boolean;
+  /** Label above the logos. */
+  label?: string;
+  /** Logos, in order. */
+  logos: Logo[];
+};
+
+const { render = true, label = "As seen in", logos = [], class: className, ...rest } = Astro.props;
+---
+
+{render && logos.length > 0 && (
+  <div class:list={["press-logos_wrap", className]} {...rest}>
+    {label && <p class="text-style-overline">{label}</p>}
+    <ul class="press-logos_list">
+      {logos.map((logo) => (
+        <li class="press-logos_item">
+          <Image class="press-logos_image" src={logo.image} alt={logo.name} widths={[200, 360]} sizes="(width >= 64rem) 11.25rem, 6.25rem" />
+        </li>
+      ))}
+    </ul>
+  </div>
+)}
+
+<style is:global>
+  @layer components {
+    .press-logos_wrap {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+      padding-bottom: var(--space-6);
+      border-bottom: var(--border-width) solid var(--text);
+    }
+
+    /* Mobile: three per row; from 48rem: one row, edge to edge. */
+    .press-logos_list {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      row-gap: 1.25rem;
+    }
+
+    .press-logos_item {
+      flex: 0 0 6.25rem;
+      aspect-ratio: 500 / 183;
+    }
+
+    .press-logos_image {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+
+    @media (width >= 48rem) {
+      .press-logos_list {
+        flex-wrap: nowrap;
+        column-gap: var(--site-gutter);
+      }
+
+      .press-logos_item {
+        flex: 0 1 11.25rem;
+        min-width: 0;
+      }
+    }
+  }
+</style>

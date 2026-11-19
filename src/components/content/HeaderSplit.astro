@@ -14,6 +14,8 @@ type Props = HTMLAttributes<"div"> & {
   text?: string;
   /** Heading level. */
   headingTag?: "h1" | "h2" | "h3";
+  /** Title size. */
+  headingVariant?: "h1" | "h2";
 };
 
 const {
@@ -22,6 +24,7 @@ const {
   tag,
   text,
   headingTag = "h2",
+  headingVariant = "h1",
   class: className,
   ...rest
 } = Astro.props;
@@ -31,7 +34,7 @@ const {
   <div class:list={["header-split_wrap", className]} {...rest}>
     <div class="header-split_title">
       <Eyebrow variant="tag">{tag}</Eyebrow>
-      <Heading tag={headingTag} variant="h1" class="margin-block-0">{title}</Heading>
+      <Heading tag={headingTag} variant={headingVariant} class="margin-block-0">{title}</Heading>
     </div>
     {text && <p class="header-split_text text-style-large">{text}</p>}
   </div>
