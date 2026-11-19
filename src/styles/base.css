@@ -240,7 +240,7 @@
   --space-5-min: 28;
   --space-5-max: 32;
   --space-6: clamp(var(--space-6-min) / 16 * 1rem, ((var(--space-6-min) - ((var(--space-6-max) - var(--space-6-min)) / (var(--viewport-max) - var(--viewport-min)) * var(--viewport-min))) / 16 * 1rem + ((var(--space-6-max) - var(--space-6-min)) / (var(--viewport-max) - var(--viewport-min))) * 100vw), var(--space-6-max) / 16 * 1rem);
-  --space-6-min: 32;
+  --space-6-min: 40;
   --space-6-max: 40;
   --space-7: clamp(var(--space-7-min) / 16 * 1rem, ((var(--space-7-min) - ((var(--space-7-max) - var(--space-7-min)) / (var(--viewport-max) - var(--viewport-min)) * var(--viewport-min))) / 16 * 1rem + ((var(--space-7-max) - var(--space-7-min)) / (var(--viewport-max) - var(--viewport-min))) * 100vw), var(--space-7-max) / 16 * 1rem);
   --space-7-min: 36;

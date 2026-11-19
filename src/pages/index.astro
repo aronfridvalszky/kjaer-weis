@@ -26,7 +26,7 @@ import oilDrops from "@/assets/images/oil-drops.jpg";
   />
 
   {/* The Oil Edit */}
-  <Section paddingBottom="small">
+  <Section paddingBottom="small" gap="6">
     <HeaderSplit
       tag="Seasonal · Winter ritual"
       title="The Oil Edit"
@@ -34,9 +34,12 @@ import oilDrops from "@/assets/images/oil-drops.jpg";
     />
     <FeatureProduct
       name="The Beautiful Oil"
-      price="$149"
       description="Lightweight active facial oil for a healthy, radiant glow."
-      sizes={["65 ml", "30 ml", "3 ml"]}
+      sizes={[
+        { label: "65 ml", price: "$149" },
+        { label: "30 ml", price: "$88" },
+        { label: "3 ml", price: "$16" },
+      ]}
       tag="Bestseller"
       packshot={beautifulOil}
       texture={oilDrops}
