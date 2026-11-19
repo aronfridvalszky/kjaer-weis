@@ -13,15 +13,41 @@ export default defineConfig({
   ],
   fonts: [
     {
-      name: "Inter",
-      cssVariable: "--font-inter",
+      name: "Geist",
+      cssVariable: "--font-geist",
+      provider: fontProviders.google(),
+      weights: [400, 500],
+      styles: ["normal"],
+      subsets: ["latin", "latin-ext"],
+      fallbacks: ["system-ui", "sans-serif"],
+    },
+    {
+      name: "Josefin Sans",
+      cssVariable: "--font-josefin",
+      provider: fontProviders.google(),
+      weights: [400, 500],
+      styles: ["normal"],
+      subsets: ["latin", "latin-ext"],
+      fallbacks: ["system-ui", "sans-serif"],
+    },
+    {
+      name: "SLTF Netsera",
+      cssVariable: "--font-netsera",
       provider: fontProviders.local(),
+      fallbacks: ["Georgia", "serif"],
       options: {
         variants: [
           {
             weight: 400,
             style: "normal",
-            src: ["./src/assets/fonts/inter-regular.woff2"],
+            display: "swap",
+            src: ["./src/assets/fonts/netsera-regular.woff2"],
+          },
+          {
+            weight: 400,
+            style: "italic",
+            display: "swap",
+            src: ["./src/assets/fonts/netsera-italic.woff2"],
           },
         ],
       },

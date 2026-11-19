@@ -25,6 +25,7 @@
     "typescript": "^6.0.3"
   },
   "devDependencies": {
+    "@types/three": "^0.181.0",
     "prettier": "^3.9.10",
     "prettier-plugin-astro": "^1.1.2"
   },

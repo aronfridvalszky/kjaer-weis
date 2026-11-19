@@ -6,8 +6,13 @@ import close from "@/assets/icons/close.svg";
 import play from "@/assets/icons/play.svg";
 import pause from "@/assets/icons/pause.svg";
 import { slotContent } from "@/utils/slots.ts";
+import ArrowRight from "@lucide/astro/icons/arrow-right";
+import ShoppingBag from "@lucide/astro/icons/shopping-bag";
+import PlusIcon from "@lucide/astro/icons/plus";
 
-type Emphasis = "primary" | "secondary";
+type Emphasis = "primary" | "dark" | "secondary";
+type Size = "large" | "medium" | "small";
+type TrailingIcon = "none" | "arrow" | "bag" | "plus";
 
 type Tag =
   | (HTMLAttributes<"button"> & {
@@ -33,12 +38,18 @@ type Kind =
       variant?: "main";
       /** Visual emphasis. */
       emphasis?: Emphasis;
+      /** Button height. */
+      size?: Size;
+      /** Icon after the label. */
+      icon?: TrailingIcon;
       label?: never;
       pressed?: never;
       direction?: never;
     }
   | {
       variant: "link";
+      size?: never;
+      icon?: never;
       /** A link carries no weight of its own: it is already the quietest. */
       emphasis?: never;
       label?: never;
@@ -48,6 +59,8 @@ type Kind =
   | {
       variant: "play";
       emphasis?: Emphasis;
+      size?: never;
+      icon?: never;
       /** Accessible label. Defaults to `Play` or `Pause`. */
       label?: string;
       /** Show the pause icon and pressed state. */
@@ -57,6 +70,8 @@ type Kind =
   | {
       variant: "close";
       emphasis?: Emphasis;
+      size?: never;
+      icon?: never;
       /** Accessible label. Defaults to `Close`. */
       label?: string;
       pressed?: never;
@@ -65,6 +80,8 @@ type Kind =
   | {
       variant: "arrow";
       emphasis?: Emphasis;
+      size?: never;
+      icon?: never;
       /** Accessible label. Defaults to `Next` or `Previous`. */
       label?: string;
       pressed?: never;
@@ -83,6 +100,8 @@ type AllProps = HTMLAttributes<"button"> &
     render?: boolean;
     variant?: "main" | "link" | "play" | "close" | "arrow";
     emphasis?: Emphasis;
+    size?: Size;
+    icon?: TrailingIcon;
     label?: string;
     pressed?: boolean;
     direction?: "forward" | "back";
@@ -95,6 +114,8 @@ const {
   render = true,
   variant = "main",
   emphasis = "primary",
+  size = "medium",
+  icon = "none",
   label,
   pressed = false,
   direction = "forward",
@@ -112,6 +133,8 @@ const tagAttrs = isLink
   : { type: type === "submit" ? undefined : type };
 
 const marks = { play, close, arrow };
+const trailing = { arrow: ArrowRight, bag: ShoppingBag, plus: PlusIcon };
+const Trailing = variant === "main" && icon !== "none" ? trailing[icon] : null;
 /* main and link are written, the rest are marks with a label. */
 const isWritten = variant === "main" || variant === "link";
 const content = isWritten ? await slotContent(Astro.slots) : "";
@@ -129,6 +152,7 @@ const named = {
       "button_wrap",
       emphasis !== "primary" && emphasis,
       variant !== "main" && variant,
+      variant === "main" && size !== "medium" && size,
       variant === "arrow" && direction === "back" && "back",
       className,
     ]}
@@ -141,6 +165,9 @@ const named = {
       <span class="button_text text-style-trim">
         <Fragment set:html={content} />
       </span>
+    )}
+    {Trailing && (
+      <Trailing class="button_icon" stroke-width={1.25} aria-hidden="true" />
     )}
     {variant === "play" && (
       <Fragment>
@@ -160,15 +187,18 @@ const named = {
 <style is:global>
   @layer components {
     .button_wrap {
+      --_height: 4rem;
       display: inline-flex;
-      justify-content: center;
+      justify-content: space-between;
       align-items: center;
-      gap: 0.5em;
-      padding: 0.75em 1.5em;
+      gap: 1em;
+      min-height: var(--_height);
+      padding: 0 1.4em;
       background-color: var(--button-background);
       color: var(--button-text);
       border: var(--border-width) solid var(--button-border);
-      border-radius: 0.5em;
+      border-radius: var(--radius-main);
+      font-size: 1.25rem;
       line-height: 1.2;
       text-decoration: none;
       text-align: center;
@@ -182,6 +212,32 @@ const named = {
           color: var(--button-text-hover);
           border-color: var(--button-border-hover);
         }
+      }
+      &.large {
+        --_height: 4.75rem;
+      }
+      &.small {
+        --_height: 3rem;
+        padding-inline: 1.125em;
+        font-size: 1rem;
+        line-height: 1.5;
+      }
+      .button_icon {
+        flex: none;
+        width: 1.1em;
+        height: 1.1em;
+      }
+      &.small .button_icon {
+        width: 1.125em;
+        height: 1.125em;
+      }
+      &.dark {
+        --button-background: var(--text);
+        --button-text: var(--background);
+        --button-border: var(--button-background);
+        --button-background-hover: var(--brand-500);
+        --button-text-hover: var(--brand-text);
+        --button-border-hover: var(--button-background-hover);
       }
       &.secondary {
         --button-background: var(--button-2-background);

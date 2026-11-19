@@ -1,0 +1,296 @@
+---
+import type { ComponentProps } from "astro/types";
+import { Image } from "astro:assets";
+import Section from "@/components/wrapper/Section.astro";
+import Button from "@/components/Button.astro";
+import Eyebrow from "@/components/typography/Eyebrow.astro";
+import poster from "@/assets/images/lipstick-hero-render.png";
+
+type Props = Pick<
+  ComponentProps<typeof Section>,
+  "render" | "theme" | "paddingTop" | "paddingBottom"
+> & {
+  /** First display line. */
+  title: string;
+  /** Accent line set over the first. */
+  accent: string;
+  /** Short introduction beside the button. */
+  text?: string;
+  /** Button label. */
+  buttonLabel?: string;
+  /** Button destination. */
+  buttonHref?: string;
+  /** Small label above the hint. */
+  hintLabel?: string;
+  /** Hint beside the button. */
+  hint?: string;
+  /** Tag under the hint. */
+  hintTag?: string;
+  /** Facts along the bottom rule. */
+  meta?: string[];
+  /** 3D model URL. Omit to show only the still render. */
+  model?: string;
+};
+
+const {
+  render = true,
+  title,
+  accent,
+  text,
+  buttonLabel,
+  buttonHref = "#",
+  hintLabel,
+  hint,
+  hintTag,
+  meta = [],
+  model,
+  theme,
+  paddingTop = "none",
+  paddingBottom = "none",
+  ...rest
+} = Astro.props;
+---
+
+{render && title && accent && (
+  <Section
+    theme={theme}
+    paddingTop={paddingTop}
+    paddingBottom={paddingBottom}
+    gap="0"
+    data-hero-home
+    {...rest}
+  >
+    <div slot="background" class="hero-home_background" aria-hidden="true" />
+    <div class="hero-home_wrap">
+      <div class="hero-home_stage">
+        <h1 class="hero-home_title">
+          <span class="hero-home_line text-style-display">{title}</span>
+          <span class="hero-home_accent text-style-accent">{accent}</span>
+        </h1>
+        <div class="hero-home_object" data-model={model}>
+          <Image
+            class="hero-home_poster"
+            src={poster}
+            alt=""
+            widths={[400, 600, 900, 1200]}
+            sizes="(width >= 48rem) 44vw, 75vw"
+            loading="eager"
+            fetchpriority="high"
+          />
+        </div>
+      </div>
+
+      <div class="hero-home_cta">
+        {text && <p class="hero-home_text text-style-large">{text}</p>}
+        {buttonLabel && (
+          <div class="hero-home_button">
+            <Button element="link" href={buttonHref} size="large" icon="arrow">
+              {buttonLabel}
+            </Button>
+          </div>
+        )}
+        {(hint || hintLabel || hintTag) && (
+          <div class="hero-home_hint">
+            {hintLabel && <p class="text-style-overline">{hintLabel}</p>}
+            {hint && <p class="text-style-h6">{hint}</p>}
+            <Eyebrow variant="tag" tag="span">{hintTag}</Eyebrow>
+          </div>
+        )}
+      </div>
+
+      {meta.length > 0 && (
+        <ul class="hero-home_meta text-style-caption">
+          {meta.map((item) => <li>{item}</li>)}
+        </ul>
+      )}
+    </div>
+  </Section>
+)}
+
+<script>
+  const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)");
+
+  document.querySelectorAll<HTMLElement>("[data-hero-home]").forEach((section) => {
+    const holder = section.querySelector<HTMLElement>(".hero-home_object");
+    const model = holder?.dataset.model;
+    if (!holder || !model || prefersReduced.matches) return;
+
+    const start = () =>
+      import("@/scripts/lipstick-scene.ts").then(({ mountLipstick }) =>
+        mountLipstick({ holder, section, model }),
+      );
+
+    if ("requestIdleCallback" in window) {
+      requestIdleCallback(start, { timeout: 1200 });
+    } else {
+      setTimeout(start, 200);
+    }
+  });
+</script>
+
+<style is:global>
+  @layer components {
+    .hero-home_background {
+      background-color: var(--background-2);
+    }
+
+    .hero-home_wrap {
+      --_nav-clearance: 4.5rem;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 2.5rem;
+      padding-top: var(--_nav-clearance);
+      padding-bottom: 2.5rem;
+    }
+
+    /* Display pair artboard — mobile 350 × 357 */
+    .hero-home_stage {
+      --_u: 1cqw;
+      --_w: 350;
+      position: relative;
+      container-type: inline-size;
+      aspect-ratio: 350 / 357;
+      width: 100%;
+    }
+
+    .hero-home_title {
+      margin: 0;
+      font: inherit;
+      text-box: normal;
+    }
+
+    .hero-home_line,
+    .hero-home_accent {
+      position: absolute;
+      display: block;
+      white-space: nowrap;
+      text-box: normal;
+    }
+
+    .hero-home_line {
+      left: calc(-4 / var(--_w) * 100 * var(--_u));
+      top: calc(10 / var(--_w) * 100 * var(--_u));
+      font-size: calc(88 / var(--_w) * 100 * var(--_u));
+      color: var(--text);
+    }
+
+    .hero-home_accent {
+      left: calc(150 / var(--_w) * 100 * var(--_u));
+      top: calc(92 / var(--_w) * 100 * var(--_u));
+      font-size: calc(92 / var(--_w) * 100 * var(--_u));
+    }
+
+    .hero-home_object {
+      position: absolute;
+      left: calc(40 / var(--_w) * 100 * var(--_u));
+      top: calc(24 / var(--_w) * 100 * var(--_u));
+      width: calc(260 / var(--_w) * 100 * var(--_u));
+      aspect-ratio: 4 / 5;
+      pointer-events: none;
+
+      & canvas,
+      & .hero-home_poster {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        background: transparent;
+        transition: opacity 600ms var(--hover-ease);
+      }
+
+      & canvas {
+        opacity: 0;
+      }
+
+      &.is-live canvas {
+        opacity: 1;
+      }
+
+      &.is-live .hero-home_poster {
+        opacity: 0;
+      }
+    }
+
+    .hero-home_cta {
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      gap: 1.5rem;
+    }
+
+    .hero-home_button {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .hero-home_hint {
+      display: flex;
+      flex-direction: column;
+      align-items: start;
+      gap: 0.5rem;
+    }
+
+    .hero-home_meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      padding-top: 0.875rem;
+      border-top: var(--border-width) solid var(--text);
+    }
+
+    @media (width >= 48rem) {
+      /* Display pair artboard — desktop 1360 × 640 */
+      .hero-home_stage {
+        --_w: 1360;
+        aspect-ratio: 1360 / 640;
+      }
+
+      .hero-home_line {
+        left: calc(-10 / var(--_w) * 100 * var(--_u));
+        top: calc(70 / var(--_w) * 100 * var(--_u));
+        font-size: calc(300 / var(--_w) * 100 * var(--_u));
+      }
+
+      .hero-home_accent {
+        left: calc(636 / var(--_w) * 100 * var(--_u));
+        top: calc(320 / var(--_w) * 100 * var(--_u));
+        font-size: calc(280 / var(--_w) * 100 * var(--_u));
+      }
+
+      .hero-home_object {
+        left: calc(214 / var(--_w) * 100 * var(--_u));
+        top: calc(-12 / var(--_w) * 100 * var(--_u));
+        width: calc(600 / var(--_w) * 100 * var(--_u));
+      }
+    }
+
+    @media (width >= 64rem) {
+      .hero-home_wrap {
+        --_nav-clearance: 6rem;
+        min-height: 100svh;
+        justify-content: end;
+      }
+
+      .hero-home_cta {
+        flex-direction: row;
+        align-items: end;
+        justify-content: space-between;
+      }
+
+      .hero-home_text,
+      .hero-home_hint {
+        width: 20.625rem;
+      }
+
+      .hero-home_button {
+        width: 27.5rem;
+      }
+
+      .hero-home_meta {
+        justify-content: space-between;
+      }
+    }
+  }
+</style>

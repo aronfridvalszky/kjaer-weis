@@ -9,15 +9,9 @@ import type { SeoProps } from "@/types.ts";
 type Props = SeoProps & {
   /** Theme for the whole page. `inherit` leaves the root defaults in place. */
   theme?: "inherit" | "light" | "dark" | "brand";
-  /**
-   * Fix the nav over the page rather than letting it stick in flow, so the
-   * first section starts underneath it. Give that section
-   * `paddingTop="navoverlap"` to clear the bar.
-   */
-  overlap?: boolean;
 };
 
-const { theme = "inherit", overlap = false, ...seo } = Astro.props;
+const { theme = "inherit", ...seo } = Astro.props;
 ---
 
 <!doctype html>
@@ -28,7 +22,7 @@ const { theme = "inherit", overlap = false, ...seo } = Astro.props;
   </head>
   <body>
     <SkipLink />
-    <Nav overlap={overlap} />
+    <Nav />
     <main id="main" tabindex="-1">
       <slot />
     </main>
