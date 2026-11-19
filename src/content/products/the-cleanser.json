@@ -1,0 +1,10 @@
+{
+  "name": "The Cleanser",
+  "size": "100 ml",
+  "price": "$98",
+  "categories": [
+    "face"
+  ],
+  "image": "../../assets/images/packshots/the-cleanser.jpg",
+  "order": 5
+}

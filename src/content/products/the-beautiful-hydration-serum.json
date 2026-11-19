@@ -1,0 +1,10 @@
+{
+  "name": "The Beautiful Hydration Serum",
+  "size": "30 ml",
+  "price": "$85",
+  "categories": [
+    "face"
+  ],
+  "image": "../../assets/images/packshots/the-beautiful-hydration-serum.jpg",
+  "order": 2
+}

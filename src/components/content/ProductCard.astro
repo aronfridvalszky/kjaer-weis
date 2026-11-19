@@ -1,0 +1,206 @@
+---
+import type { HTMLAttributes } from "astro/types";
+import { Image } from "astro:assets";
+import Eyebrow from "@/components/typography/Eyebrow.astro";
+import HeartIcon from "@lucide/astro/icons/heart";
+import ShoppingBag from "@lucide/astro/icons/shopping-bag";
+
+type Props = HTMLAttributes<"article"> & {
+  /** Set to `false` to omit the component. */
+  render?: boolean;
+  /** Product name. */
+  name: string;
+  /** Size shown under the name. */
+  size?: string;
+  /** Displayed price. */
+  price: string;
+  /** Packshot on the surface colour. */
+  image: ImageMetadata;
+  /** Product page link. */
+  href?: string;
+  /** Tag over the photo. */
+  tag?: { label: string; tone: "neutral" | "accent" | "accent-filled" };
+  /** Hide the quick-add bar. */
+  soldOut?: boolean;
+};
+
+const {
+  render = true,
+  name,
+  size,
+  price,
+  image,
+  href = "#",
+  tag,
+  soldOut = false,
+  class: className,
+  ...rest
+} = Astro.props;
+---
+
+{render && name && image && (
+  <article class:list={["product-card_wrap", className]} {...rest}>
+    <div class="product-card_visual">
+      <Image
+        class="product-card_image"
+        src={image}
+        alt=""
+        widths={[320, 480, 700]}
+        sizes="(width >= 37.5rem) 25vw, 50vw"
+      />
+      {tag && (
+        <div class="product-card_tag">
+          <Eyebrow variant="tag" tone={tag.tone} surface="photo" tag="span">
+            {tag.label}
+          </Eyebrow>
+        </div>
+      )}
+      <button class="product-card_heart" type="button" aria-label={`Save ${name}`} aria-pressed="false">
+        <HeartIcon stroke-width={1.25} aria-hidden="true" />
+      </button>
+      {!soldOut && (
+        <button class="product-card_quick text-style-small" type="button">
+          <span>Quick add</span>
+          <ShoppingBag stroke-width={1.25} aria-hidden="true" />
+        </button>
+      )}
+    </div>
+    <div class="product-card_info">
+      <div class="product-card_text">
+        <h3 class="text-style-label">
+          <a class="product-card_link" href={href}>{name}</a>
+        </h3>
+        {size && <p class="text-style-caption">{size}</p>}
+      </div>
+      <p class="text-style-label">{price}</p>
+    </div>
+  </article>
+)}
+
+<script>
+  document.addEventListener("click", (event) => {
+    const target = event.target;
+    if (!(target instanceof Element)) return;
+    const heart = target.closest<HTMLButtonElement>(".product-card_heart");
+    if (!heart) return;
+    heart.setAttribute("aria-pressed", String(heart.getAttribute("aria-pressed") !== "true"));
+  });
+</script>
+
+<style is:global>
+  @layer components {
+    .product-card_wrap {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .product-card_visual {
+      position: relative;
+      height: 26.25rem;
+      overflow: hidden;
+      background-color: var(--light-200);
+    }
+
+    .product-card_image {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .product-card_tag {
+      position: absolute;
+      top: 0.875rem;
+      left: 0.875rem;
+    }
+
+    .product-card_heart {
+      position: absolute;
+      z-index: 2;
+      top: 0.875rem;
+      right: 0.875rem;
+      display: flex;
+      width: 1.375rem;
+      height: 1.375rem;
+      color: var(--dark-900);
+      transition: color var(--hover-duration) var(--hover-ease);
+
+      & svg {
+        width: 100%;
+        height: 100%;
+        transition: fill var(--hover-duration) var(--hover-ease);
+      }
+
+      &[aria-pressed="true"] {
+        color: var(--brand-500);
+        & svg {
+          fill: currentcolor;
+        }
+      }
+    }
+
+    .product-card_quick {
+      position: absolute;
+      z-index: 2;
+      inset: auto 0.875rem 0.875rem;
+      display: none;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.875rem 1rem;
+      background-color: color-mix(in lab, var(--light-100) 92%, transparent);
+      color: var(--dark-900);
+      backdrop-filter: blur(var(--blur-main));
+      -webkit-backdrop-filter: blur(var(--blur-main));
+
+      & svg {
+        width: 1.25rem;
+        height: 1.25rem;
+      }
+    }
+
+    .product-card_info {
+      display: flex;
+      align-items: start;
+      justify-content: space-between;
+      gap: 0.75rem;
+    }
+
+    .product-card_text {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      min-width: 0;
+    }
+
+    /* The whole card is the link; buttons sit above it. */
+    .product-card_link::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+    }
+
+    @media (hover: hover) {
+      .product-card_quick {
+        display: flex;
+        opacity: 0;
+        translate: 0 calc(100% + 0.875rem);
+        transition:
+          opacity var(--hover-duration) var(--hover-ease),
+          translate calc(var(--hover-duration) * 1.5) var(--hover-ease);
+      }
+
+      .product-card_wrap:is(:hover, :focus-within) .product-card_quick {
+        opacity: 1;
+        translate: 0 0;
+      }
+
+      .product-card_heart:hover {
+        color: var(--brand-500);
+      }
+    }
+  }
+</style>

@@ -1,0 +1,14 @@
+{
+  "name": "The Beautiful Eye Balm",
+  "size": "15 ml",
+  "price": "$65",
+  "categories": [
+    "face"
+  ],
+  "tag": {
+    "label": "Iconic Edition",
+    "tone": "accent"
+  },
+  "image": "../../assets/images/packshots/the-beautiful-eye-balm.jpg",
+  "order": 4
+}

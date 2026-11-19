@@ -1,0 +1,178 @@
+---
+import type { HTMLAttributes } from "astro/types";
+import type { CollectionEntry } from "astro:content";
+import Heading from "@/components/typography/Heading.astro";
+import Choice from "@/components/form/Choice.astro";
+import Button from "@/components/Button.astro";
+import ProductCard from "@/components/content/ProductCard.astro";
+import { slug } from "@/utils/slug.ts";
+
+type Filter = {
+  /** Chip label. */
+  label: string;
+  /** Category value. `all` shows every product. */
+  value: string;
+};
+
+type Props = HTMLAttributes<"div"> & {
+  /** Set to `false` to omit the component. */
+  render?: boolean;
+  /** Section title. */
+  title: string;
+  /** Products to list, in order. */
+  products: CollectionEntry<"products">[];
+  /** Category chips. */
+  filters?: Filter[];
+  /** Button label under the grid. */
+  buttonLabel?: string;
+  /** Button destination. */
+  buttonHref?: string;
+};
+
+const {
+  render = true,
+  title,
+  products,
+  filters = [],
+  buttonLabel,
+  buttonHref = "#",
+  class: className,
+  ...rest
+} = Astro.props;
+
+const group = `filter-${slug(title)}`;
+const count = (n: number) => `(${String(n).padStart(2, "0")})`;
+---
+
+{render && title && products.length > 0 && (
+  <div class:list={["product-grid_wrap", className]} data-product-grid {...rest}>
+    <div class="product-grid_header">
+      <Heading tag="h2" variant="h1" class="margin-block-0">{title}</Heading>
+      <p class="product-grid_count text-style-large" aria-live="polite">{count(products.length)}</p>
+    </div>
+
+    {filters.length > 0 && (
+      <fieldset class="product-grid_filters">
+        <legend class="sr-only">Filter by category</legend>
+        {filters.map((filter, index) => (
+          <Choice
+            type="radio"
+            variant="chip"
+            name={group}
+            label={filter.label}
+            value={filter.value}
+            checked={index === 0}
+          />
+        ))}
+      </fieldset>
+    )}
+
+    <ul class="product-grid_list">
+      {products.map((product) => (
+        <li class="product-grid_item" data-categories={product.data.categories.join(" ")}>
+          <ProductCard
+            name={product.data.name}
+            size={product.data.size}
+            price={product.data.price}
+            image={product.data.image}
+            tag={product.data.tag}
+            soldOut={product.data.soldOut}
+            href={`/products/${product.id}`}
+          />
+        </li>
+      ))}
+    </ul>
+    <p class="product-grid_empty text-style-large" hidden>Nothing here yet — check back soon.</p>
+
+    {buttonLabel && (
+      <div class="product-grid_cta">
+        <Button element="link" href={buttonHref} emphasis="secondary" icon="arrow">
+          {buttonLabel}
+        </Button>
+      </div>
+    )}
+  </div>
+)}
+
+<script>
+  document.querySelectorAll<HTMLElement>("[data-product-grid]").forEach((grid) => {
+    const items = [...grid.querySelectorAll<HTMLElement>(".product-grid_item")];
+    const empty = grid.querySelector<HTMLElement>(".product-grid_empty");
+    const count = grid.querySelector<HTMLElement>(".product-grid_count");
+
+    grid.querySelector(".product-grid_filters")?.addEventListener("change", (event) => {
+      const input = event.target;
+      if (!(input instanceof HTMLInputElement)) return;
+      let shown = 0;
+      for (const item of items) {
+        const match = input.value === "all" || item.dataset.categories?.split(" ").includes(input.value);
+        item.hidden = !match;
+        if (match) shown++;
+      }
+      if (empty) empty.hidden = shown > 0;
+      if (count) count.textContent = `(${String(shown).padStart(2, "0")})`;
+    });
+  });
+</script>
+
+<style is:global>
+  @layer components {
+    .product-grid_wrap {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-6);
+    }
+
+    .product-grid_header {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .product-grid_filters {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin: 0;
+      padding: 0;
+      border: 0;
+    }
+
+    .product-grid_list {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 2rem var(--site-gutter);
+    }
+
+    .product-grid_item[hidden] {
+      display: none;
+    }
+
+    .product-grid_cta {
+      display: flex;
+      flex-direction: column;
+    }
+
+    @media (width >= 37.5rem) {
+      .product-grid_list {
+        grid-template-columns: repeat(auto-fill, minmax(17.5rem, 1fr));
+      }
+    }
+
+    @media (width >= 64rem) {
+      .product-grid_count {
+        display: none;
+      }
+
+      .product-grid_list {
+        row-gap: 3rem;
+      }
+
+      .product-grid_cta {
+        align-self: center;
+        width: 27.5rem;
+      }
+    }
+  }
+</style>

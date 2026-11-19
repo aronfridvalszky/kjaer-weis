@@ -1,0 +1,14 @@
+{
+  "name": "Lipstick — Affection",
+  "size": "3.5 g",
+  "price": "$58",
+  "categories": [
+    "lips"
+  ],
+  "tag": {
+    "label": "Iconic Edition",
+    "tone": "accent"
+  },
+  "image": "../../assets/images/packshots/lipstick-affection.jpg",
+  "order": 7
+}

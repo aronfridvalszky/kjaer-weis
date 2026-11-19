@@ -1,0 +1,14 @@
+{
+  "name": "The Beautiful Oil",
+  "size": "30 ml",
+  "price": "$149",
+  "categories": [
+    "face"
+  ],
+  "tag": {
+    "label": "Bestseller",
+    "tone": "accent"
+  },
+  "image": "../../assets/images/packshots/the-beautiful-oil.jpg",
+  "order": 1
+}

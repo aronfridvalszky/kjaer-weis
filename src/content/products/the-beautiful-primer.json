@@ -1,0 +1,14 @@
+{
+  "name": "The Beautiful Primer",
+  "size": "30 ml",
+  "price": "$55",
+  "categories": [
+    "face"
+  ],
+  "tag": {
+    "label": "Iconic Edition",
+    "tone": "accent"
+  },
+  "image": "../../assets/images/packshots/the-beautiful-primer.jpg",
+  "order": 6
+}

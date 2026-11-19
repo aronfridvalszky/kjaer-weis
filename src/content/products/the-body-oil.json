@@ -1,0 +1,15 @@
+{
+  "name": "The Body Oil",
+  "size": "100 ml",
+  "price": "$129",
+  "categories": [
+    "body",
+    "refills"
+  ],
+  "tag": {
+    "label": "Refill",
+    "tone": "neutral"
+  },
+  "image": "../../assets/images/packshots/the-body-oil.jpg",
+  "order": 8
+}

@@ -1,4 +1,5 @@
 ---
+import { getCollection } from "astro:content";
 import Layout from "@/layouts/BaseLayout.astro";
 import HeroHome from "@/components/section/HeroHome.astro";
 import Section from "@/components/wrapper/Section.astro";
@@ -8,6 +9,9 @@ import RefillStory from "@/components/section/RefillStory.astro";
 import DisplayPair from "@/components/content/DisplayPair.astro";
 import IntroStory from "@/components/content/IntroStory.astro";
 import bodyOilModel from "@/assets/images/bodyoil-model.jpg";
+import ProductGrid from "@/components/content/ProductGrid.astro";
+
+const products = (await getCollection("products")).sort((a, b) => a.data.order - b.data.order);
 import oilModel from "@/assets/images/oil-model.jpg";
 import beautifulOil from "@/assets/images/the-beautiful-oil.jpg";
 import oilDrops from "@/assets/images/oil-drops.jpg";
@@ -93,6 +97,23 @@ import oilDrops from "@/assets/images/oil-drops.jpg";
       title="Beautiful objects for life."
       text="Founded in 2010 on the belief that beauty is more than skin deep. Certified-organic formulas, hand-selected ingredients and cases made to be kept and treasured — cultivating an alluring patina with time."
       buttonLabel="Read our story"
+    />
+  </Section>
+
+  {/* Product grid */}
+  <Section gap="0">
+    <ProductGrid
+      title="Skin Care"
+      products={products}
+      filters={[
+        { label: "All", value: "all" },
+        { label: "Face", value: "face" },
+        { label: "Body", value: "body" },
+        { label: "Lips", value: "lips" },
+        { label: "Refills", value: "refills" },
+        { label: "Sets", value: "sets" },
+      ]}
+      buttonLabel="Shop all skin care"
     />
   </Section>
 </Layout>

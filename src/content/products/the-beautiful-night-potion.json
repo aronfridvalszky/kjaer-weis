@@ -1,0 +1,15 @@
+{
+  "name": "The Beautiful Night Potion",
+  "size": "30 ml",
+  "price": "$85",
+  "categories": [
+    "face"
+  ],
+  "tag": {
+    "label": "Sold out",
+    "tone": "accent-filled"
+  },
+  "soldOut": true,
+  "image": "../../assets/images/packshots/the-beautiful-night-potion.jpg",
+  "order": 3
+}
