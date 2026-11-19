@@ -32,6 +32,8 @@ type Props = HTMLAttributes<"div"> & {
   accent: string;
   /** Heading level. */
   tag?: "h1" | "h2" | "h3";
+  /** First line style: Heading (Josefin Medium) or Display (Josefin Regular). */
+  variant?: "heading" | "display";
   /** Layout from the 390 mobile frame. */
   mobile: Frame;
   /** Layout from the 1440 desktop frame. */
@@ -43,6 +45,7 @@ const {
   title,
   accent,
   tag: Tag = "h2",
+  variant = "heading",
   mobile,
   desktop,
   class: className,
@@ -67,9 +70,20 @@ const inline = [vars("m", mobile), vars("d", desktop), style].filter(Boolean).jo
 ---
 
 {render && title && accent && (
-  <div class:list={["display-pair_wrap", className]} style={inline} {...rest}>
+  <div
+    class:list={["display-pair_wrap", variant !== "heading" && variant, className]}
+    style={inline}
+    {...rest}
+  >
     <Tag class="display-pair_title">
-      <span class="display-pair_line text-style-h1">{title}</span>
+      <span
+        class:list={[
+          "display-pair_line",
+          variant === "display" ? "text-style-display" : "text-style-h1",
+        ]}
+      >
+        {title}
+      </span>
       <span class="display-pair_accent text-style-accent">{accent}</span>
     </Tag>
   </div>
@@ -115,6 +129,10 @@ const inline = [vars("m", mobile), vars("d", desktop), style].filter(Boolean).jo
       font-size: calc(var(--_ls) * var(--_u));
       line-height: 0.95;
       color: var(--text);
+    }
+
+    .display-pair_wrap.display .display-pair_line {
+      line-height: 0.92;
     }
 
     .display-pair_accent {

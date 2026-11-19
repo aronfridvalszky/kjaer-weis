@@ -34,7 +34,7 @@ const {
   buttonHref = "#",
   meta = [],
   model,
-  theme,
+  theme = "cream",
   paddingTop = "none",
   paddingBottom = "none",
   ...rest
@@ -50,7 +50,6 @@ const {
     data-hero-home
     {...rest}
   >
-    <div slot="background" class="hero-home_background" aria-hidden="true" />
     <div class="hero-home_wrap">
       <div class="hero-home_stage">
         <h1 class="hero-home_title">
@@ -113,10 +112,6 @@ const {
 
 <style is:global>
   @layer components {
-    .hero-home_background {
-      background-color: var(--background-2);
-    }
-
     .hero-home_wrap {
       --_nav-clearance: 4.5rem;
       width: 100%;

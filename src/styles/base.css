@@ -266,6 +266,7 @@
 /* Color themes */
 :root,
 .theme-light,
+.theme-cream,
 .theme-dark .theme-invert,
 .theme-brand .theme-invert {
   color-scheme: light;
@@ -371,6 +372,11 @@
   --link-border: var(--border);
   --link-text-hover: var(--text);
   --link-border-hover: var(--text);
+}
+
+.theme-cream {
+  --background: var(--light-300);
+  --background-2: var(--light-200);
 }
 
 :root,

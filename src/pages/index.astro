@@ -5,6 +5,9 @@ import Section from "@/components/wrapper/Section.astro";
 import HeaderSplit from "@/components/content/HeaderSplit.astro";
 import FeatureProduct from "@/components/content/FeatureProduct.astro";
 import RefillStory from "@/components/section/RefillStory.astro";
+import DisplayPair from "@/components/content/DisplayPair.astro";
+import IntroStory from "@/components/content/IntroStory.astro";
+import bodyOilModel from "@/assets/images/bodyoil-model.jpg";
 import oilModel from "@/assets/images/oil-model.jpg";
 import beautifulOil from "@/assets/images/the-beautiful-oil.jpg";
 import oilDrops from "@/assets/images/oil-drops.jpg";
@@ -62,4 +65,34 @@ import oilDrops from "@/assets/images/oil-drops.jpg";
     buttonLabel="How refills work"
     model="/models/kjaerweis-lipstick.glb"
   />
+
+  {/* About */}
+  <Section theme="cream" paddingTop="small" paddingBottom="small" gap="0">
+    <DisplayPair
+      title="Luxury"
+      accent="that cares"
+      variant="display"
+      mobile={{
+        width: 350,
+        height: 118,
+        column: 350,
+        line: { x: -4, y: 0, size: 72 },
+        accent: { x: 118, y: 47, size: 66 },
+      }}
+      desktop={{
+        width: 1360,
+        height: 470,
+        column: 1360,
+        line: { x: -10, y: 0, size: 200 },
+        accent: { x: 406, y: 130, size: 190 },
+      }}
+    />
+    <IntroStory
+      image={bodyOilModel}
+      imageAlt="Model holding The Body Oil against her back"
+      title="Beautiful objects for life."
+      text="Founded in 2010 on the belief that beauty is more than skin deep. Certified-organic formulas, hand-selected ingredients and cases made to be kept and treasured — cultivating an alluring patina with time."
+      buttonLabel="Read our story"
+    />
+  </Section>
 </Layout>
