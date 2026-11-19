@@ -3,7 +3,6 @@ import type { ComponentProps } from "astro/types";
 import { Image } from "astro:assets";
 import Section from "@/components/wrapper/Section.astro";
 import Button from "@/components/Button.astro";
-import Eyebrow from "@/components/typography/Eyebrow.astro";
 import poster from "@/assets/images/lipstick-hero-render.png";
 
 type Props = Pick<
@@ -20,12 +19,6 @@ type Props = Pick<
   buttonLabel?: string;
   /** Button destination. */
   buttonHref?: string;
-  /** Small label above the hint. */
-  hintLabel?: string;
-  /** Hint beside the button. */
-  hint?: string;
-  /** Tag under the hint. */
-  hintTag?: string;
   /** Facts along the bottom rule. */
   meta?: string[];
   /** 3D model URL. Omit to show only the still render. */
@@ -39,9 +32,6 @@ const {
   text,
   buttonLabel,
   buttonHref = "#",
-  hintLabel,
-  hint,
-  hintTag,
   meta = [],
   model,
   theme,
@@ -87,13 +77,6 @@ const {
             <Button element="link" href={buttonHref} size="large" icon="arrow">
               {buttonLabel}
             </Button>
-          </div>
-        )}
-        {(hint || hintLabel || hintTag) && (
-          <div class="hero-home_hint">
-            {hintLabel && <p class="text-style-overline">{hintLabel}</p>}
-            {hint && <p class="text-style-h6">{hint}</p>}
-            <Eyebrow variant="tag" tag="span">{hintTag}</Eyebrow>
           </div>
         )}
       </div>
@@ -183,8 +166,8 @@ const {
 
     .hero-home_object {
       position: absolute;
-      left: calc(40 / var(--_w) * 100 * var(--_u));
-      top: calc(24 / var(--_w) * 100 * var(--_u));
+      left: calc(24 / var(--_w) * 100 * var(--_u));
+      top: calc(39 / var(--_w) * 100 * var(--_u));
       width: calc(260 / var(--_w) * 100 * var(--_u));
       aspect-ratio: 4 / 5;
       pointer-events: none;
@@ -210,6 +193,8 @@ const {
 
       &.is-live .hero-home_poster {
         opacity: 0;
+        transition-duration: 0s;
+        transition-delay: 600ms;
       }
     }
 
@@ -223,13 +208,6 @@ const {
     .hero-home_button {
       display: flex;
       flex-direction: column;
-    }
-
-    .hero-home_hint {
-      display: flex;
-      flex-direction: column;
-      align-items: start;
-      gap: 0.5rem;
     }
 
     .hero-home_meta {
@@ -260,8 +238,8 @@ const {
       }
 
       .hero-home_object {
-        left: calc(214 / var(--_w) * 100 * var(--_u));
-        top: calc(-12 / var(--_w) * 100 * var(--_u));
+        left: calc(153 / var(--_w) * 100 * var(--_u));
+        top: calc(48 / var(--_w) * 100 * var(--_u));
         width: calc(600 / var(--_w) * 100 * var(--_u));
       }
     }
@@ -279,8 +257,7 @@ const {
         justify-content: space-between;
       }
 
-      .hero-home_text,
-      .hero-home_hint {
+      .hero-home_text {
         width: 20.625rem;
       }
 
