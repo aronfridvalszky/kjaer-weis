@@ -92,63 +92,63 @@
   --accent-text-wrap: balance;
 
   --h1: clamp(var(--h1-min) / 16 * 1rem, ((var(--h1-min) - ((var(--h1-max) - var(--h1-min)) / (var(--viewport-max) - var(--viewport-min)) * var(--viewport-min))) / 16 * 1rem + ((var(--h1-max) - var(--h1-min)) / (var(--viewport-max) - var(--viewport-min))) * 100vw), var(--h1-max) / 16 * 1rem);
-  --h1-min: 48;
-  --h1-max: 80;
-  --h1-line-height: var(--line-height-small);
+  --h1-min: 56;
+  --h1-max: 140;
+  --h1-line-height: 0.95;
   --h1-letter-spacing: var(--letter-spacing-tight);
   --h1-text-transform: none;
   --h1-margin-top: var(--space-7);
   --h1-margin-bottom: var(--space-6);
-  --h1-font-family: var(--primary-family);
+  --h1-font-family: var(--display-family);
   --h1-font-weight: var(--primary-medium);
   --h1-text-wrap: balance;
 
   --h2: clamp(var(--h2-min) / 16 * 1rem, ((var(--h2-min) - ((var(--h2-max) - var(--h2-min)) / (var(--viewport-max) - var(--viewport-min)) * var(--viewport-min))) / 16 * 1rem + ((var(--h2-max) - var(--h2-min)) / (var(--viewport-max) - var(--viewport-min))) * 100vw), var(--h2-max) / 16 * 1rem);
-  --h2-min: 40;
-  --h2-max: 64;
+  --h2-min: 44;
+  --h2-max: 96;
   --h2-line-height: var(--line-height-small);
-  --h2-letter-spacing: var(--letter-spacing-tight);
+  --h2-letter-spacing: -0.01em;
   --h2-text-transform: none;
   --h2-margin-top: var(--space-7);
   --h2-margin-bottom: var(--space-5);
-  --h2-font-family: var(--primary-family);
+  --h2-font-family: var(--display-family);
   --h2-font-weight: var(--primary-medium);
   --h2-text-wrap: balance;
 
   --h3: clamp(var(--h3-min) / 16 * 1rem, ((var(--h3-min) - ((var(--h3-max) - var(--h3-min)) / (var(--viewport-max) - var(--viewport-min)) * var(--viewport-min))) / 16 * 1rem + ((var(--h3-max) - var(--h3-min)) / (var(--viewport-max) - var(--viewport-min))) * 100vw), var(--h3-max) / 16 * 1rem);
-  --h3-min: 36;
-  --h3-max: 48;
-  --h3-line-height: var(--line-height-medium);
-  --h3-letter-spacing: var(--letter-spacing-tight);
+  --h3-min: 34;
+  --h3-max: 64;
+  --h3-line-height: 1.05;
+  --h3-letter-spacing: -0.01em;
   --h3-text-transform: none;
   --h3-margin-top: var(--space-6);
   --h3-margin-bottom: var(--space-5);
-  --h3-font-family: var(--primary-family);
+  --h3-font-family: var(--display-family);
   --h3-font-weight: var(--primary-medium);
   --h3-text-wrap: balance;
 
   --h4: clamp(var(--h4-min) / 16 * 1rem, ((var(--h4-min) - ((var(--h4-max) - var(--h4-min)) / (var(--viewport-max) - var(--viewport-min)) * var(--viewport-min))) / 16 * 1rem + ((var(--h4-max) - var(--h4-min)) / (var(--viewport-max) - var(--viewport-min))) * 100vw), var(--h4-max) / 16 * 1rem);
   --h4-min: 28;
-  --h4-max: 32;
+  --h4-max: 40;
   --h4-line-height: var(--line-height-medium);
-  --h4-letter-spacing: var(--letter-spacing-tight);
+  --h4-letter-spacing: var(--letter-spacing-normal);
   --h4-text-transform: none;
   --h4-margin-top: var(--space-6);
   --h4-margin-bottom: var(--space-4);
-  --h4-font-family: var(--primary-family);
-  --h4-font-weight: var(--primary-medium);
+  --h4-font-family: var(--serif-family);
+  --h4-font-weight: var(--primary-regular);
   --h4-text-wrap: balance;
 
   --h5: clamp(var(--h5-min) / 16 * 1rem, ((var(--h5-min) - ((var(--h5-max) - var(--h5-min)) / (var(--viewport-max) - var(--viewport-min)) * var(--viewport-min))) / 16 * 1rem + ((var(--h5-max) - var(--h5-min)) / (var(--viewport-max) - var(--viewport-min))) * 100vw), var(--h5-max) / 16 * 1rem);
-  --h5-min: 22;
-  --h5-max: 24;
-  --h5-line-height: var(--line-height-medium);
-  --h5-letter-spacing: var(--letter-spacing-tight);
+  --h5-min: 24;
+  --h5-max: 30;
+  --h5-line-height: 1.2;
+  --h5-letter-spacing: var(--letter-spacing-normal);
   --h5-text-transform: none;
   --h5-margin-top: var(--space-5);
   --h5-margin-bottom: var(--space-4);
-  --h5-font-family: var(--primary-family);
-  --h5-font-weight: var(--primary-medium);
+  --h5-font-family: var(--serif-family);
+  --h5-font-weight: var(--primary-regular);
   --h5-text-wrap: balance;
 
   --h6: clamp(var(--h6-min) / 16 * 1rem, ((var(--h6-min) - ((var(--h6-max) - var(--h6-min)) / (var(--viewport-max) - var(--viewport-min)) * var(--viewport-min))) / 16 * 1rem + ((var(--h6-max) - var(--h6-min)) / (var(--viewport-max) - var(--viewport-min))) * 100vw), var(--h6-max) / 16 * 1rem);
@@ -206,6 +206,12 @@
   --text-overline-line-height: var(--line-height-large);
   --text-overline-letter-spacing: var(--letter-spacing-wide);
 
+  --price: clamp(var(--price-min) / 16 * 1rem, ((var(--price-min) - ((var(--price-max) - var(--price-min)) / (var(--viewport-max) - var(--viewport-min)) * var(--viewport-min))) / 16 * 1rem + ((var(--price-max) - var(--price-min)) / (var(--viewport-max) - var(--viewport-min))) * 100vw), var(--price-max) / 16 * 1rem);
+  --price-min: 28;
+  --price-max: 40;
+  --price-line-height: var(--line-height-medium);
+  --price-letter-spacing: var(--letter-spacing-tight);
+
   /* Site layout */
   --site-margin: clamp(var(--site-margin-min) / 16 * 1rem, ((var(--site-margin-min) - ((var(--site-margin-max) - var(--site-margin-min)) / (var(--viewport-max) - var(--viewport-min)) * var(--viewport-min))) / 16 * 1rem + ((var(--site-margin-max) - var(--site-margin-min)) / (var(--viewport-max) - var(--viewport-min))) * 100vw), var(--site-margin-max) / 16 * 1rem);
   --site-margin-min: 20;
@@ -244,11 +250,11 @@
   --space-8-max: 64;
 
   --section-space-small: clamp(var(--section-space-small-min) / 16 * 1rem, ((var(--section-space-small-min) - ((var(--section-space-small-max) - var(--section-space-small-min)) / (var(--viewport-max) - var(--viewport-min)) * var(--viewport-min))) / 16 * 1rem + ((var(--section-space-small-max) - var(--section-space-small-min)) / (var(--viewport-max) - var(--viewport-min))) * 100vw), var(--section-space-small-max) / 16 * 1rem);
-  --section-space-small-min: 48;
-  --section-space-small-max: 80;
+  --section-space-small-min: 64;
+  --section-space-small-max: 100;
   --section-space-medium: clamp(var(--section-space-medium-min) / 16 * 1rem, ((var(--section-space-medium-min) - ((var(--section-space-medium-max) - var(--section-space-medium-min)) / (var(--viewport-max) - var(--viewport-min)) * var(--viewport-min))) / 16 * 1rem + ((var(--section-space-medium-max) - var(--section-space-medium-min)) / (var(--viewport-max) - var(--viewport-min))) * 100vw), var(--section-space-medium-max) / 16 * 1rem);
-  --section-space-medium-min: 64;
-  --section-space-medium-max: 112;
+  --section-space-medium-min: 72;
+  --section-space-medium-max: 120;
   --section-space-large: clamp(var(--section-space-large-min) / 16 * 1rem, ((var(--section-space-large-min) - ((var(--section-space-large-max) - var(--section-space-large-min)) / (var(--viewport-max) - var(--viewport-min)) * var(--viewport-min))) / 16 * 1rem + ((var(--section-space-large-max) - var(--section-space-large-min)) / (var(--viewport-max) - var(--viewport-min))) * 100vw), var(--section-space-large-max) / 16 * 1rem);
   --section-space-large-min: 88;
   --section-space-large-max: 160;
@@ -574,6 +580,15 @@ body,
   font-size: var(--text-caption);
   font-weight: var(--primary-regular);
   line-height: var(--text-caption-line-height);
+}
+
+.text-style-price {
+  font-family: var(--primary-family);
+  font-size: var(--price);
+  font-weight: var(--primary-medium);
+  line-height: var(--price-line-height);
+  letter-spacing: var(--price-letter-spacing);
+  font-variant-numeric: lining-nums;
 }
 
 .text-style-overline {

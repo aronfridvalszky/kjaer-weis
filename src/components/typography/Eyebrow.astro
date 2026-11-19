@@ -8,7 +8,7 @@ type Props = HTMLAttributes<"div"> & {
   /** HTML element. */
   tag?: "span" | "p" | "h1" | "h2" | "h3" | "h4" | "h5" | "h6";
   /** Eyebrow style. */
-  variant?: "default" | "tag";
+  variant?: "default" | "tag" | "tag-photo";
 };
 
 const {
@@ -33,7 +33,7 @@ const content = await slotContent(Astro.slots);
     <Tag
       class:list={[
         "eyebrow_text",
-        variant === "tag" ? "text-style-overline" : "text-style-small",
+        variant === "default" ? "text-style-small" : "text-style-overline",
       ]}
     >
       <Fragment set:html={content} />
@@ -54,6 +54,15 @@ const content = await slotContent(Astro.slots);
         color: var(--brand-500);
         padding: 0.6rem 0.75rem;
         border-radius: var(--radius-round);
+      }
+
+      &.tag-photo {
+        background-color: color-mix(in lab, var(--light-100) 55%, transparent);
+        color: var(--dark-900);
+        padding: 0.6rem 0.75rem;
+        border-radius: var(--radius-round);
+        backdrop-filter: blur(var(--blur-small));
+        -webkit-backdrop-filter: blur(var(--blur-small));
       }
       .eyebrow_marker {
         flex: none;

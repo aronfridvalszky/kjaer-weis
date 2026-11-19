@@ -1,6 +1,12 @@
 ---
 import Layout from "@/layouts/BaseLayout.astro";
 import HeroHome from "@/components/section/HeroHome.astro";
+import Section from "@/components/wrapper/Section.astro";
+import HeaderSplit from "@/components/content/HeaderSplit.astro";
+import FeatureProduct from "@/components/content/FeatureProduct.astro";
+import oilModel from "@/assets/images/oil-model.jpg";
+import beautifulOil from "@/assets/images/the-beautiful-oil.jpg";
+import oilDrops from "@/assets/images/oil-drops.jpg";
 ---
 
 <Layout>
@@ -18,4 +24,24 @@ import HeroHome from "@/components/section/HeroHome.astro";
     ]}
     model="/models/kjaerweis-lipstick.glb"
   />
+
+  {/* The Oil Edit */}
+  <Section paddingBottom="small">
+    <HeaderSplit
+      tag="Seasonal · Winter ritual"
+      title="The Oil Edit"
+      text="Three cold-pressed oils for the dark months: for face, body and the ends of your hair. One golden ritual, refilled again and again."
+    />
+    <FeatureProduct
+      name="The Beautiful Oil"
+      price="$149"
+      description="Lightweight active facial oil for a healthy, radiant glow."
+      sizes={["65 ml", "30 ml", "3 ml"]}
+      tag="Bestseller"
+      packshot={beautifulOil}
+      texture={oilDrops}
+      lifestyle={oilModel}
+      lifestyleAlt="Model holding The Beautiful Oil against her cheek, winking"
+    />
+  </Section>
 </Layout>

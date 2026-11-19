@@ -1,0 +1,69 @@
+---
+import type { HTMLAttributes } from "astro/types";
+import Eyebrow from "@/components/typography/Eyebrow.astro";
+import Heading from "@/components/typography/Heading.astro";
+
+type Props = HTMLAttributes<"div"> & {
+  /** Set to `false` to omit the component. */
+  render?: boolean;
+  /** Section title. */
+  title: string;
+  /** Tag above the title. */
+  tag?: string;
+  /** Short text beside the title. */
+  text?: string;
+  /** Heading level. */
+  headingTag?: "h1" | "h2" | "h3";
+};
+
+const {
+  render = true,
+  title,
+  tag,
+  text,
+  headingTag = "h2",
+  class: className,
+  ...rest
+} = Astro.props;
+---
+
+{render && title && (
+  <div class:list={["header-split_wrap", className]} {...rest}>
+    <div class="header-split_title">
+      <Eyebrow variant="tag">{tag}</Eyebrow>
+      <Heading tag={headingTag} variant="h1" class="margin-block-0">{title}</Heading>
+    </div>
+    {text && <p class="header-split_text text-style-large">{text}</p>}
+  </div>
+)}
+
+<style is:global>
+  @layer components {
+    .header-split_wrap {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    .header-split_title {
+      display: flex;
+      flex-direction: column;
+      align-items: start;
+      gap: 1.5rem;
+    }
+
+    @media (width >= 64rem) {
+      .header-split_wrap {
+        flex-direction: row;
+        align-items: end;
+        justify-content: space-between;
+        gap: var(--site-gutter);
+      }
+
+      .header-split_text {
+        max-width: 20.625rem;
+      }
+    }
+  }
+</style>

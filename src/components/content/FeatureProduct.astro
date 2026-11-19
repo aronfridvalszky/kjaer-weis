@@ -1,0 +1,303 @@
+---
+import type { HTMLAttributes } from "astro/types";
+import { Image } from "astro:assets";
+import Eyebrow from "@/components/typography/Eyebrow.astro";
+import Choice from "@/components/form/Choice.astro";
+import Button from "@/components/Button.astro";
+import { slug } from "@/utils/slug.ts";
+
+type Props = HTMLAttributes<"div"> & {
+  /** Set to `false` to omit the component. */
+  render?: boolean;
+  /** Product name. */
+  name: string;
+  /** Displayed price. */
+  price: string;
+  /** Short product description. */
+  description?: string;
+  /** Size options. The first is selected. */
+  sizes?: string[];
+  /** Tag over the packshot. */
+  tag?: string;
+  /** Packshot on the surface colour. */
+  packshot: ImageMetadata;
+  /** Texture shown when the packshot is hovered. */
+  texture?: ImageMetadata;
+  /** Lifestyle photo beside the product. */
+  lifestyle: ImageMetadata;
+  /** Lifestyle photo description. */
+  lifestyleAlt?: string;
+  /** Button label. */
+  buttonLabel?: string;
+};
+
+const {
+  render = true,
+  name,
+  price,
+  description,
+  sizes = [],
+  tag,
+  packshot,
+  texture,
+  lifestyle,
+  lifestyleAlt = "",
+  buttonLabel = "Add to bag",
+  class: className,
+  ...rest
+} = Astro.props;
+
+const group = `size-${slug(name)}`;
+---
+
+{render && name && packshot && lifestyle && (
+  <div class:list={["feature-product_wrap", className]} {...rest}>
+    <div class="feature-product_lifestyle">
+      <Image
+        class="feature-product_photo"
+        src={lifestyle}
+        alt={lifestyleAlt}
+        widths={[480, 800, 1200, 1600]}
+        sizes="(width >= 64rem) 55vw, 100vw"
+      />
+    </div>
+
+    <div class="feature-product_product">
+      <div class="feature-product_visual" data-feature-visual>
+        <div class="feature-product_bottle">
+          <Image
+            class="feature-product_packshot"
+            src={packshot}
+            alt={name}
+            widths={[480, 800, 1200]}
+            sizes="(width >= 64rem) 40vw, 100vw"
+          />
+          {texture && (
+            <Image
+              class="feature-product_texture"
+              src={texture}
+              alt=""
+              widths={[480, 800, 1200]}
+              sizes="(width >= 64rem) 40vw, 100vw"
+            />
+          )}
+          <span class="feature-product_trail" aria-hidden="true" />
+          <span class="feature-product_drop" aria-hidden="true" />
+        </div>
+        <div class="feature-product_tag">
+          <Eyebrow variant="tag-photo" tag="span">{tag}</Eyebrow>
+        </div>
+      </div>
+
+      <div class="feature-product_title">
+        <h3 class="text-style-h4">{name}</h3>
+        <p class="text-style-price">{price}</p>
+      </div>
+
+      {description && <p class="text-style-main">{description}</p>}
+
+      {sizes.length > 0 && (
+        <fieldset class="feature-product_sizes">
+          <legend class="sr-only">Size</legend>
+          {sizes.map((size, index) => (
+            <Choice
+              type="radio"
+              variant="chip"
+              name={group}
+              label={size}
+              value={size}
+              checked={index === 0}
+            />
+          ))}
+        </fieldset>
+      )}
+
+      <Button size="large" icon="bag">{buttonLabel}</Button>
+    </div>
+  </div>
+)}
+
+<script>
+  import { gsap } from "gsap";
+  import { ScrollTrigger } from "gsap/ScrollTrigger";
+
+  gsap.registerPlugin(ScrollTrigger);
+
+  const motion = window.matchMedia("(prefers-reduced-motion: no-preference)");
+
+  document.querySelectorAll<HTMLElement>("[data-feature-visual]").forEach((visual) => {
+    if (!motion.matches) return;
+    const bottle = visual.querySelector<HTMLElement>(".feature-product_bottle");
+    if (!bottle) return;
+
+    gsap
+      .timeline({
+        scrollTrigger: {
+          trigger: visual,
+          start: "top 70%",
+          end: "bottom 30%",
+          scrub: 0.8,
+        },
+      })
+      .fromTo(bottle, { "--_drop-in": 0 }, { "--_drop-in": 1, duration: 0.12, ease: "none" }, 0)
+      .fromTo(bottle, { "--_drop": 0 }, { "--_drop": 1, duration: 1, ease: "power1.in" }, 0)
+      .to(bottle, { "--_drop-in": 0, duration: 0.12, ease: "none" }, 0.88);
+  });
+</script>
+
+<style is:global>
+  @layer components {
+    .feature-product_wrap {
+      width: 100%;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr);
+      gap: 1.25rem;
+    }
+
+    .feature-product_lifestyle {
+      position: relative;
+      aspect-ratio: 350 / 340;
+      overflow: hidden;
+      background-color: var(--background);
+    }
+
+    .feature-product_photo {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .feature-product_product {
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+
+    .feature-product_visual {
+      position: relative;
+      aspect-ratio: 555 / 520;
+      overflow: hidden;
+      background-color: var(--background);
+    }
+
+    /* The packshot is cropped 16.71% top and bottom, as in the design. */
+    .feature-product_bottle {
+      --_drop: 0;
+      --_drop-in: 0;
+      position: absolute;
+      inset: -16.71% 0;
+    }
+
+    .feature-product_packshot,
+    .feature-product_texture {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .feature-product_packshot,
+    .feature-product_texture {
+      transition: opacity calc(var(--hover-duration) * 3) var(--hover-ease);
+    }
+
+    .feature-product_texture {
+      opacity: 0;
+      mix-blend-mode: multiply;
+    }
+
+    @media (hover: hover) {
+      .feature-product_visual:hover {
+        & .feature-product_texture {
+          opacity: 1;
+        }
+        & .feature-product_packshot,
+        & .feature-product_drop,
+        & .feature-product_trail {
+          opacity: 0;
+        }
+      }
+    }
+
+    /* A single golden drop down the front face of the bottle. */
+    .feature-product_drop,
+    .feature-product_trail {
+      position: absolute;
+      left: 50.8%;
+      opacity: var(--_drop-in);
+      pointer-events: none;
+    }
+
+    .feature-product_drop {
+      top: calc(40% + 30% * var(--_drop));
+      width: 2.2%;
+      aspect-ratio: 3 / 4;
+      translate: -50% -50%;
+      border-radius: 50% 50% 50% 50% / 62% 62% 38% 38%;
+      background: radial-gradient(
+        circle at 38% 32%,
+        var(--light-100) 0 12%,
+        #ffd27a 26%,
+        #d9820f 66%,
+        #9c4a00 100%
+      );
+      box-shadow: 0 0.05rem 0.15rem color-mix(in lab, #6b3000 40%, transparent);
+    }
+
+    .feature-product_trail {
+      top: 40%;
+      width: 0.2%;
+      height: calc(30% * var(--_drop));
+      translate: -50% 0;
+      background: linear-gradient(
+        to bottom,
+        transparent,
+        color-mix(in lab, #ffd27a 70%, transparent)
+      );
+    }
+
+    .feature-product_tag {
+      position: absolute;
+      top: 1.25rem;
+      left: 1.25rem;
+    }
+
+    .feature-product_title {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      white-space: nowrap;
+    }
+
+    .feature-product_sizes {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin: 0;
+      padding: 0;
+      border: 0;
+    }
+
+    @media (width >= 64rem) {
+      .feature-product_wrap {
+        grid-template-columns: minmax(0, 785fr) minmax(0, 555fr);
+      }
+
+      .feature-product_lifestyle {
+        aspect-ratio: auto;
+        height: 100%;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .feature-product_drop,
+      .feature-product_trail {
+        display: none;
+      }
+    }
+  }
+</style>
