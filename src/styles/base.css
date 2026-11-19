@@ -290,7 +290,7 @@
   --button-text-hover: var(--brand-text);
 
   --button-2-background: transparent;
-  --button-2-border: var(--border);
+  --button-2-border: var(--text);
   --button-2-text: var(--text);
   --button-2-background-hover: var(--text);
   --button-2-border-hover: var(--button-2-background-hover);
@@ -313,7 +313,7 @@
   --text: var(--light-100);
   --text-2: color-mix(in lab, currentcolor 60%, transparent);
   --border: color-mix(in lab, var(--text) 20%, transparent);
-  --heading-accent: var(--light-300);
+  --heading-accent: var(--brand-500);
 
   --selection-background: var(--text);
   --selection-text: var(--background);
@@ -326,7 +326,7 @@
   --button-text-hover: var(--brand-text);
 
   --button-2-background: transparent;
-  --button-2-border: var(--border);
+  --button-2-border: var(--text);
   --button-2-text: var(--text);
   --button-2-background-hover: var(--text);
   --button-2-border-hover: var(--button-2-background-hover);
@@ -361,7 +361,7 @@
   --button-text-hover: var(--dark-900);
 
   --button-2-background: transparent;
-  --button-2-border: var(--border);
+  --button-2-border: var(--text);
   --button-2-text: var(--text);
   --button-2-background-hover: var(--light-100);
   --button-2-border-hover: var(--button-2-background-hover);

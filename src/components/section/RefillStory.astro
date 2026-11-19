@@ -1,0 +1,248 @@
+---
+import type { ComponentProps } from "astro/types";
+import { Image } from "astro:assets";
+import Section from "@/components/wrapper/Section.astro";
+import Button from "@/components/Button.astro";
+import DisplayPair from "@/components/content/DisplayPair.astro";
+import poster from "@/assets/images/lipstick-open-render.png";
+
+type Props = Pick<
+  ComponentProps<typeof Section>,
+  "render" | "theme" | "paddingTop" | "paddingBottom"
+> & {
+  /** First display line. */
+  title: string;
+  /** Accent line set over the first. */
+  accent: string;
+  /** Short text beside the title. */
+  text?: string;
+  /** Numbered steps. */
+  steps?: string[];
+  /** Button label. */
+  buttonLabel?: string;
+  /** Button destination. */
+  buttonHref?: string;
+  /** 3D model URL. Omit to show only the still render. */
+  model?: string;
+};
+
+const {
+  render = true,
+  title,
+  accent,
+  text,
+  steps = [],
+  buttonLabel,
+  buttonHref = "#",
+  model,
+  theme = "dark",
+  paddingTop = "medium",
+  paddingBottom = "medium",
+  ...rest
+} = Astro.props;
+---
+
+{render && title && accent && (
+  <Section
+    theme={theme}
+    paddingTop={paddingTop}
+    paddingBottom={paddingBottom}
+    gap="0"
+    data-refill-story
+    {...rest}
+  >
+    <div class="refill-story_wrap">
+      <div class="refill-story_header">
+        <DisplayPair
+          title={title}
+          accent={accent}
+          mobile={{
+            width: 350,
+            height: 116,
+            column: 350,
+            line: { x: -4, y: 0, size: 56 },
+            accent: { x: 36, y: 47, size: 60 },
+          }}
+          desktop={{
+            width: 1000,
+            height: 330,
+            column: 1360,
+            line: { x: -10, y: 0, size: 140 },
+            accent: { x: 289, y: 113, size: 190 },
+          }}
+        />
+        {text && <p class="refill-story_text text-style-small">{text}</p>}
+      </div>
+
+      <div class="refill-story_content">
+        <div class="refill-story_steps">
+          {steps.length > 0 && (
+            <ol class="refill-story_list">
+              {steps.map((step, index) => (
+                <li class="refill-story_step">
+                  <span class="text-style-caption">{String(index + 1).padStart(2, "0")}</span>
+                  <span class="text-style-h5">{step}</span>
+                </li>
+              ))}
+            </ol>
+          )}
+          {buttonLabel && (
+            <div class="refill-story_button">
+              <Button element="link" href={buttonHref} emphasis="secondary" icon="arrow">
+                {buttonLabel}
+              </Button>
+            </div>
+          )}
+        </div>
+
+        <div class="refill-story_visual">
+          <div class="refill-story_object" data-model={model}>
+            <Image
+              class="refill-story_poster"
+              src={poster}
+              alt=""
+              widths={[400, 600, 900, 1200]}
+              sizes="(width >= 64rem) 40vw, 70vw"
+            />
+          </div>
+        </div>
+      </div>
+    </div>
+  </Section>
+)}
+
+<script>
+  const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)");
+
+  document.querySelectorAll<HTMLElement>("[data-refill-story]").forEach((section) => {
+    const holder = section.querySelector<HTMLElement>(".refill-story_object");
+    const model = holder?.dataset.model;
+    if (!holder || !model || prefersReduced.matches) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (!entries.some((entry) => entry.isIntersecting)) return;
+        observer.disconnect();
+        import("@/scripts/lipstick-scene.ts").then(({ mountLipstick }) =>
+          mountLipstick({ holder, section, model, pose: "refill" }),
+        );
+      },
+      { rootMargin: "100% 0px" },
+    );
+    observer.observe(section);
+  });
+</script>
+
+<style is:global>
+  @layer components {
+    .refill-story_wrap {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    .refill-story_header {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    .refill-story_content {
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+
+    .refill-story_steps {
+      display: flex;
+      flex-direction: column;
+      gap: 2.5rem;
+    }
+
+    .refill-story_step {
+      display: flex;
+      align-items: center;
+      gap: 1.25rem;
+      padding-block: 1.375rem;
+      border-top: var(--border-width) solid var(--text);
+    }
+
+    .refill-story_button {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .refill-story_visual {
+      position: relative;
+      aspect-ratio: 350 / 325;
+    }
+
+    .refill-story_object {
+      position: absolute;
+      inset-block: 0;
+      left: 50%;
+      translate: -50% 0;
+      aspect-ratio: 4 / 5;
+
+      & canvas,
+      & .refill-story_poster {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        transition: opacity 600ms var(--hover-ease);
+      }
+
+      & canvas {
+        opacity: 0;
+      }
+
+      &.is-live canvas {
+        opacity: 1;
+      }
+
+      &.is-live .refill-story_poster {
+        opacity: 0;
+        transition-duration: 0s;
+        transition-delay: 600ms;
+      }
+    }
+
+    @media (width >= 64rem) {
+      .refill-story_header {
+        flex-direction: row;
+        align-items: start;
+        justify-content: space-between;
+      }
+
+      .refill-story_text {
+        width: 20.625rem;
+      }
+
+      .refill-story_content {
+        flex-direction: row;
+        align-items: end;
+      }
+
+      .refill-story_steps {
+        flex: none;
+        width: 35rem;
+      }
+
+      .refill-story_step {
+        gap: 2.5rem;
+      }
+
+      .refill-story_button {
+        width: 27.5rem;
+      }
+
+      .refill-story_visual {
+        flex: 1;
+        aspect-ratio: 780 / 700;
+      }
+    }
+  }
+</style>

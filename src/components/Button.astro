@@ -188,18 +188,19 @@ const named = {
   @layer components {
     .button_wrap {
       --_height: 4rem;
+      --_icon: 1.25rem;
       display: inline-flex;
       justify-content: space-between;
       align-items: center;
-      gap: 1em;
+      gap: 1rem;
       min-height: var(--_height);
-      padding: 0 1.4em;
+      padding: 0 1.5rem;
       background-color: var(--button-background);
       color: var(--button-text);
       border: var(--border-width) solid var(--button-border);
       border-radius: var(--radius-main);
-      font-size: 1.25rem;
-      line-height: 1.2;
+      font-size: 1.125rem;
+      line-height: 1.45;
       text-decoration: none;
       text-align: center;
       transition:
@@ -215,21 +216,22 @@ const named = {
       }
       &.large {
         --_height: 4.75rem;
+        --_icon: 1.375rem;
+        padding-inline: 1.75rem;
+        font-size: 1.25rem;
+        line-height: 1.2;
       }
       &.small {
         --_height: 3rem;
-        padding-inline: 1.125em;
+        --_icon: 1.125rem;
+        padding-inline: 1.125rem;
         font-size: 1rem;
         line-height: 1.5;
       }
       .button_icon {
         flex: none;
-        width: 1.1em;
-        height: 1.1em;
-      }
-      &.small .button_icon {
-        width: 1.125em;
-        height: 1.125em;
+        width: var(--_icon);
+        height: var(--_icon);
       }
       &.dark {
         --button-background: var(--text);

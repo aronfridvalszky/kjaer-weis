@@ -5,11 +5,86 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 
 gsap.registerPlugin(ScrollTrigger);
 
+export type LipstickPose = "hero" | "refill";
+
 type Options = {
   holder: HTMLElement;
   section: HTMLElement;
   model: string;
+  pose?: LipstickPose;
 };
+
+type State = {
+  rootY: number;
+  rootTurn: number;
+  baseX: number;
+  baseY: number;
+  baseTilt: number;
+  baseTurn: number;
+  capX: number;
+  capY: number;
+  capZ: number;
+  capTilt: number;
+  capTurn: number;
+  bulletRise: number;
+};
+
+const rest: State = {
+  rootY: 0,
+  rootTurn: 0,
+  baseX: 0,
+  baseY: 0,
+  baseTilt: 0,
+  baseTurn: 0,
+  capX: 0,
+  capY: 22,
+  capZ: 0,
+  capTilt: 0,
+  capTurn: 0,
+  bulletRise: 0,
+};
+
+/* Starting poses. `hero` matches lipstick-hero-render.png; `refill` starts closed. */
+const starts: Record<LipstickPose, State> = {
+  hero: {
+    ...rest,
+    rootTurn: -0.5,
+    baseX: -14,
+    baseY: -30,
+    baseTilt: -10,
+    capX: 20,
+    capY: -22,
+    capZ: -10,
+    capTilt: 16,
+    capTurn: 0.6,
+  },
+  refill: { ...rest, rootY: -30, rootTurn: -0.4 },
+};
+
+/* Scroll choreography per pose. */
+function choreograph(pose: LipstickPose, state: State, section: HTMLElement, onUpdate: () => void) {
+  if (pose === "refill") {
+    /* Ends on lipstick-open-render.png: cap lifted clear, then set down beside the case. */
+    gsap
+      .timeline({
+        onUpdate,
+        scrollTrigger: { trigger: section, start: "top 55%", end: "bottom bottom", scrub: 0.6 },
+      })
+      .to(state, { capY: 60, duration: 0.45, ease: "power2.out" }, 0)
+      .to(state, { capX: 24, capY: 0, baseX: -12, duration: 0.55, ease: "power2.inOut" }, 0.45);
+    return;
+  }
+
+  gsap
+    .timeline({
+      defaults: { ease: "none" },
+      onUpdate,
+      scrollTrigger: { trigger: section, start: "top top", end: "bottom top", scrub: 0.6 },
+    })
+    .to(state, { capY: 48, capX: 46, capZ: -30, capTilt: 52, capTurn: 1.8, ease: "power1.in" }, 0)
+    .to(state, { baseTurn: deg(30), baseTilt: -4, ease: "power1.inOut" }, 0)
+    .to(state, { bulletRise: 4, ease: "power1.out" }, 0.2);
+}
 
 const deg = THREE.MathUtils.degToRad;
 
@@ -95,7 +170,7 @@ function restoreEngravings(root: THREE.Object3D, font: string) {
   });
 }
 
-export async function mountLipstick({ holder, section, model }: Options) {
+export async function mountLipstick({ holder, section, model, pose = "hero" }: Options) {
   let renderer: THREE.WebGLRenderer;
   try {
     renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
@@ -151,31 +226,20 @@ export async function mountLipstick({ holder, section, model }: Options) {
 
   /* The file is in metres; the pose below is in millimetres. */
   lipstick.scale.setScalar(1);
-  lipstick.rotation.set(0, -0.5, 0);
   scene.add(gltf.scene);
 
   const bulletRest = bullet.position.y;
 
-  /* Pose at the top of the page matches the still render. */
-  const pose = {
-    baseX: -14,
-    baseY: -30,
-    baseTilt: -10,
-    baseTurn: 0,
-    capX: 20,
-    capY: -22,
-    capZ: -10,
-    capTilt: 16,
-    capTurn: 0.6,
-    bulletRise: 0,
-  };
+  const state: State = { ...starts[pose] };
 
   const apply = () => {
-    base.position.set(pose.baseX, pose.baseY, 0);
-    base.rotation.set(0, pose.baseTurn, deg(pose.baseTilt));
-    cap.position.set(pose.capX, pose.capY, pose.capZ);
-    cap.rotation.set(0, pose.capTurn, deg(pose.capTilt));
-    bullet.position.y = bulletRest + pose.bulletRise;
+    lipstick.position.y = state.rootY;
+    lipstick.rotation.set(0, state.rootTurn, 0);
+    base.position.set(state.baseX, state.baseY, 0);
+    base.rotation.set(0, state.baseTurn, deg(state.baseTilt));
+    cap.position.set(state.capX, state.capY, state.capZ);
+    cap.rotation.set(0, state.capTurn, deg(state.capTilt));
+    bullet.position.y = bulletRest + state.bulletRise;
   };
 
   let queued = false;
@@ -205,18 +269,5 @@ export async function mountLipstick({ holder, section, model }: Options) {
   render();
   holder.classList.add("is-live");
 
-  gsap
-    .timeline({
-      defaults: { ease: "none" },
-      onUpdate: requestRender,
-      scrollTrigger: {
-        trigger: section,
-        start: "top top",
-        end: "bottom top",
-        scrub: 0.6,
-      },
-    })
-    .to(pose, { capY: 48, capX: 46, capZ: -30, capTilt: 52, capTurn: 1.8, ease: "power1.in" }, 0)
-    .to(pose, { baseTurn: deg(30), baseTilt: -4, ease: "power1.inOut" }, 0)
-    .to(pose, { bulletRise: 4, ease: "power1.out" }, 0.2);
+  choreograph(pose, state, section, requestRender);
 }

@@ -1,0 +1,140 @@
+---
+import type { HTMLAttributes } from "astro/types";
+
+type Placement = {
+  /** Left offset in design pixels. */
+  x: number;
+  /** Top offset in design pixels. */
+  y: number;
+  /** Font size in design pixels. */
+  size: number;
+};
+
+type Frame = {
+  /** Artboard width in design pixels. */
+  width: number;
+  /** Artboard height in design pixels. */
+  height: number;
+  /** Width of the column the artboard sits in. */
+  column: number;
+  /** First line placement. */
+  line: Placement;
+  /** Accent line placement. */
+  accent: Placement;
+};
+
+type Props = HTMLAttributes<"div"> & {
+  /** Set to `false` to omit the component. */
+  render?: boolean;
+  /** First line, set in the display face. */
+  title: string;
+  /** Accent line, set in the serif italic. */
+  accent: string;
+  /** Heading level. */
+  tag?: "h1" | "h2" | "h3";
+  /** Layout from the 390 mobile frame. */
+  mobile: Frame;
+  /** Layout from the 1440 desktop frame. */
+  desktop: Frame;
+};
+
+const {
+  render = true,
+  title,
+  accent,
+  tag: Tag = "h2",
+  mobile,
+  desktop,
+  class: className,
+  style,
+  ...rest
+} = Astro.props;
+
+const vars = (prefix: string, f: Frame) =>
+  [
+    `--_${prefix}-w: ${f.width}`,
+    `--_${prefix}-h: ${f.height}`,
+    `--_${prefix}-col: ${f.column}`,
+    `--_${prefix}-lx: ${f.line.x}`,
+    `--_${prefix}-ly: ${f.line.y}`,
+    `--_${prefix}-ls: ${f.line.size}`,
+    `--_${prefix}-ax: ${f.accent.x}`,
+    `--_${prefix}-ay: ${f.accent.y}`,
+    `--_${prefix}-as: ${f.accent.size}`,
+  ].join("; ");
+
+const inline = [vars("m", mobile), vars("d", desktop), style].filter(Boolean).join("; ");
+---
+
+{render && title && accent && (
+  <div class:list={["display-pair_wrap", className]} style={inline} {...rest}>
+    <Tag class="display-pair_title">
+      <span class="display-pair_line text-style-h1">{title}</span>
+      <span class="display-pair_accent text-style-accent">{accent}</span>
+    </Tag>
+  </div>
+)}
+
+<style is:global>
+  @layer components {
+    .display-pair_wrap {
+      --_w: var(--_m-w);
+      --_h: var(--_m-h);
+      --_col: var(--_m-col);
+      --_lx: var(--_m-lx);
+      --_ly: var(--_m-ly);
+      --_ls: var(--_m-ls);
+      --_ax: var(--_m-ax);
+      --_ay: var(--_m-ay);
+      --_as: var(--_m-as);
+      width: calc(var(--_w) / var(--_col) * 100%);
+    }
+
+    /* Artboard: every length is design px ÷ artboard width. */
+    .display-pair_title {
+      --_u: calc(100cqw / var(--_w));
+      position: relative;
+      container-type: inline-size;
+      aspect-ratio: var(--_w) / var(--_h);
+      margin: 0;
+      font: inherit;
+      text-box: normal;
+    }
+
+    .display-pair_line,
+    .display-pair_accent {
+      position: absolute;
+      display: block;
+      white-space: nowrap;
+      text-box: normal;
+    }
+
+    .display-pair_line {
+      left: calc(var(--_lx) * var(--_u));
+      top: calc(var(--_ly) * var(--_u));
+      font-size: calc(var(--_ls) * var(--_u));
+      line-height: 0.95;
+      color: var(--text);
+    }
+
+    .display-pair_accent {
+      left: calc(var(--_ax) * var(--_u));
+      top: calc(var(--_ay) * var(--_u));
+      font-size: calc(var(--_as) * var(--_u));
+    }
+
+    @media (width >= 48rem) {
+      .display-pair_wrap {
+        --_w: var(--_d-w);
+        --_h: var(--_d-h);
+        --_col: var(--_d-col);
+        --_lx: var(--_d-lx);
+        --_ly: var(--_d-ly);
+        --_ls: var(--_d-ls);
+        --_ax: var(--_d-ax);
+        --_ay: var(--_d-ay);
+        --_as: var(--_d-as);
+      }
+    }
+  }
+</style>

@@ -4,6 +4,7 @@ import HeroHome from "@/components/section/HeroHome.astro";
 import Section from "@/components/wrapper/Section.astro";
 import HeaderSplit from "@/components/content/HeaderSplit.astro";
 import FeatureProduct from "@/components/content/FeatureProduct.astro";
+import RefillStory from "@/components/section/RefillStory.astro";
 import oilModel from "@/assets/images/oil-model.jpg";
 import beautifulOil from "@/assets/images/the-beautiful-oil.jpg";
 import oilDrops from "@/assets/images/oil-drops.jpg";
@@ -47,4 +48,18 @@ import oilDrops from "@/assets/images/oil-drops.jpg";
       lifestyleAlt="Model holding The Beautiful Oil against her cheek, winking"
     />
   </Section>
+
+  {/* Refill story */}
+  <RefillStory
+    title="One case."
+    accent="Endless refills"
+    text="Since 2010 — the first luxury beauty brand to launch with refillable packaging."
+    steps={[
+      "Keep the case — it is made for life.",
+      "Order the refill when you run out.",
+      "Slip it in. Recycle the red box. Repeat.",
+    ]}
+    buttonLabel="How refills work"
+    model="/models/kjaerweis-lipstick.glb"
+  />
 </Layout>
