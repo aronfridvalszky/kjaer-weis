@@ -1,0 +1,711 @@
+---
+import type { CollectionEntry } from "astro:content";
+import { Image } from "astro:assets";
+import Section from "@/components/wrapper/Section.astro";
+import Eyebrow from "@/components/typography/Eyebrow.astro";
+import Button from "@/components/Button.astro";
+import Accordion from "@/components/interactive/Accordion.astro";
+import AccordionItem from "@/components/interactive/AccordionItem.astro";
+import ArrowLeft from "@lucide/astro/icons/arrow-left";
+import ArrowRight from "@lucide/astro/icons/arrow-right";
+import PlusIcon from "@lucide/astro/icons/plus";
+import MinusIcon from "@lucide/astro/icons/minus";
+import ShoppingBag from "@lucide/astro/icons/shopping-bag";
+
+type Props = {
+  /** Set to `false` to omit the component. */
+  render?: boolean;
+  /** Product to show. */
+  product: CollectionEntry<"products">;
+  /** Breadcrumb trail before the product name. */
+  crumbs?: { label: string; href: string }[];
+  /** Info rows under the buttons. */
+  info?: string[];
+};
+
+const {
+  render = true,
+  product,
+  crumbs = [
+    { label: "Home", href: "/" },
+    { label: "Skin Care", href: "/#skin-care" },
+  ],
+  info = [
+    "In stock, ready to ship",
+    "Free shipping on orders over $150",
+    "Polish me, please — care guide included",
+  ],
+} = Astro.props;
+
+const data = product.data;
+const sizes = data.sizes ?? [{ label: data.size, price: data.price }];
+const selected = Math.min(data.defaultSize, sizes.length - 1);
+const current = sizes[selected];
+const hasRefill = sizes.some((size) => size.refillPrice);
+const refillFrom = sizes
+  .map((size) => size.refillPrice)
+  .filter(Boolean)
+  .sort((a, b) => parseFloat(a!.slice(1)) - parseFloat(b!.slice(1)))[0];
+const slides = [{ src: data.image, alt: data.name }, ...data.gallery];
+const thumbs = slides.slice(1, 3);
+const group = `pdp-${product.id}`;
+const summary = (size: string) => (hasRefill ? `${size} · Iconic Edition` : size);
+---
+
+{render && (
+  <Section paddingTop="none" paddingBottom="small" gap="0" class="product-hero" data-product-hero>
+    <div class="product-hero_wrap">
+      <nav class="product-hero_crumbs text-style-caption" aria-label="Breadcrumb">
+        <ol>
+          {crumbs.map((crumb) => (
+            <li><a href={crumb.href}>{crumb.label}</a></li>
+          ))}
+          <li aria-current="page">{data.name}</li>
+        </ol>
+      </nav>
+
+      <div class="product-hero_main">
+        <div class="product-hero_gallery" data-gallery>
+          <div class="product-hero_stage">
+            {slides.map((slide, index) => (
+              <Image
+                class="product-hero_slide"
+                src={slide.src}
+                alt={slide.alt}
+                widths={[600, 900, 1300, 1600]}
+                sizes="(width >= 64rem) 55vw, 100vw"
+                loading={index === 0 ? "eager" : "lazy"}
+                data-active={index === 0 ? "" : undefined}
+              />
+            ))}
+            {slides.length > 1 && (
+              <Fragment>
+                <p class="product-hero_count text-style-caption" aria-live="polite">
+                  <span data-gallery-index>1</span> / {slides.length}
+                </p>
+                <div class="product-hero_arrows">
+                  <button type="button" data-gallery-step="-1" aria-label="Previous photo">
+                    <ArrowLeft stroke-width={1.25} aria-hidden="true" />
+                  </button>
+                  <button type="button" data-gallery-step="1" aria-label="Next photo">
+                    <ArrowRight stroke-width={1.25} aria-hidden="true" />
+                  </button>
+                </div>
+              </Fragment>
+            )}
+          </div>
+          {thumbs.length > 0 && (
+            <div class="product-hero_thumbs">
+              {thumbs.map((thumb, index) => (
+                <button type="button" class="product-hero_thumb" data-gallery-go={index + 1} aria-label={`Show photo ${index + 2}`}>
+                  <Image src={thumb.src} alt="" widths={[400, 700, 900]} sizes="(width >= 64rem) 27vw, 50vw" />
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+
+        <div class="product-hero_buy" data-buy-box>
+          <div class="product-hero_intro">
+            {data.badges.length > 0 && (
+              <ul class="product-hero_badges">
+                {data.badges.map((badge) => (
+                  <li><Eyebrow variant="tag" tag="span">{badge}</Eyebrow></li>
+                ))}
+              </ul>
+            )}
+            <h1 class="product-hero_title text-style-h3">{data.name}</h1>
+            {data.rating && (
+              <a class="product-hero_rating text-style-small" href="#reviews">
+                <span class="product-hero_stars" aria-hidden="true">★★★★★</span>
+                <span>{data.rating.score} · {data.rating.count} reviews</span>
+              </a>
+            )}
+            {data.description && <p class="text-style-large">{data.description}</p>}
+            <p class="product-hero_price">
+              <span class="text-style-price" data-buy-price>{current.price}</span>
+              <span class="text-style-small" data-buy-summary>{summary(current.label)}</span>
+            </p>
+          </div>
+
+          {sizes.length > 1 && (
+            <fieldset class="product-hero_field">
+              <legend class="text-style-overline">Size</legend>
+              <div class="product-hero_options">
+                {sizes.map((size, index) => (
+                  <label class="product-hero_option">
+                    <input
+                      type="radio"
+                      name={`${group}-size`}
+                      value={size.label}
+                      checked={index === selected}
+                      data-price={size.price}
+                      data-refill-price={size.refillPrice}
+                    />
+                    <span class="text-style-main">{size.label}</span>
+                  </label>
+                ))}
+              </div>
+            </fieldset>
+          )}
+
+          {hasRefill && (
+            <fieldset class="product-hero_field">
+              <div class="product-hero_legend">
+                <legend class="text-style-overline">Edition</legend>
+                <a class="text-style-caption" href="#packaging">About the editions</a>
+              </div>
+              <div class="product-hero_options">
+                <label class="product-hero_option">
+                  <input type="radio" name={`${group}-edition`} value="Iconic Edition" checked />
+                  <span class="text-style-main">Iconic Edition</span>
+                  <span class="text-style-caption">Refillable case, made to keep</span>
+                </label>
+                <label class="product-hero_option">
+                  <input type="radio" name={`${group}-edition`} value="Refill Only" />
+                  <span class="text-style-main">Refill Only</span>
+                  <span class="text-style-caption">From {refillFrom} · slips into your case</span>
+                </label>
+              </div>
+            </fieldset>
+          )}
+
+          <div class="product-hero_actions">
+            <div class="product-hero_add">
+              <div class="product-hero_quantity" data-quantity>
+                <button type="button" data-step="-1" aria-label="Decrease quantity">
+                  <MinusIcon stroke-width={1.25} aria-hidden="true" />
+                </button>
+                <input class="text-style-large" type="number" min="1" max="9" value="1" aria-label="Quantity" inputmode="numeric" />
+                <button type="button" data-step="1" aria-label="Increase quantity">
+                  <PlusIcon stroke-width={1.25} aria-hidden="true" />
+                </button>
+              </div>
+              <Button size="large" icon="bag" class="flex-grow" disabled={data.soldOut}>
+                {data.soldOut ? "Sold out" : <Fragment>Add to bag<span class="product-hero_add-price"> — <span data-buy-price>{current.price}</span></span></Fragment>}
+              </Button>
+            </div>
+            {hasRefill && (
+              <Button emphasis="secondary" icon="arrow" class="width-full">
+                Subscribe &amp; refill every 8 weeks
+              </Button>
+            )}
+          </div>
+
+          {info.length > 0 && (
+            <ul class="product-hero_info text-style-small">
+              {info.map((row) => <li>{row}</li>)}
+            </ul>
+          )}
+
+          {data.details.length > 0 && (
+            <Accordion openFirst>
+              {data.details.map((detail) => (
+                <AccordionItem heading={detail.title}>
+                  <p class="text-style-main">{detail.body}</p>
+                </AccordionItem>
+              ))}
+            </Accordion>
+          )}
+        </div>
+      </div>
+    </div>
+
+    {!data.soldOut && (
+      <div class="product-hero_bar" data-buy-bar aria-hidden="true" inert>
+        <Image class="product-hero_bar-image" src={data.image} alt="" widths={[120]} sizes="3.5rem" />
+        <div class="product-hero_bar-text">
+          <p class="text-style-label">{data.name}</p>
+          <p class="text-style-caption">
+            <span class="product-hero_bar-desktop" data-buy-summary>{summary(current.label)}</span>
+            <span class="product-hero_bar-mobile"><span data-buy-size>{current.label}</span> · <span data-buy-price>{current.price}</span></span>
+          </p>
+        </div>
+        <button class="product-hero_bar-button" type="button" data-buy-scroll>
+          <span class="product-hero_bar-desktop">Add to bag — <span data-buy-price>{current.price}</span></span>
+          <span class="product-hero_bar-mobile">Add to bag</span>
+          <ShoppingBag stroke-width={1.25} aria-hidden="true" />
+        </button>
+      </div>
+    )}
+  </Section>
+)}
+
+<script>
+  document.querySelectorAll<HTMLElement>("[data-product-hero]").forEach((hero) => {
+    /* Gallery */
+    const slides = [...hero.querySelectorAll<HTMLElement>(".product-hero_slide")];
+    const index = hero.querySelector<HTMLElement>("[data-gallery-index]");
+    let active = 0;
+    const show = (next: number) => {
+      active = (next + slides.length) % slides.length;
+      slides.forEach((slide, i) => slide.toggleAttribute("data-active", i === active));
+      if (index) index.textContent = String(active + 1);
+    };
+    hero.querySelectorAll<HTMLButtonElement>("[data-gallery-step]").forEach((button) =>
+      button.addEventListener("click", () => show(active + Number(button.dataset.galleryStep))),
+    );
+    hero.querySelectorAll<HTMLButtonElement>("[data-gallery-go]").forEach((button) =>
+      button.addEventListener("click", () => show(Number(button.dataset.galleryGo))),
+    );
+
+    /* Size + edition update every price and summary */
+    const buy = hero.querySelector<HTMLElement>("[data-buy-box]");
+    const update = () => {
+      const size = buy?.querySelector<HTMLInputElement>('input[name$="-size"]:checked');
+      if (!size) return;
+      /* Sizes without a refill price cannot be bought as a refill. */
+      const refillInput = buy?.querySelector<HTMLInputElement>('input[name$="-edition"][value="Refill Only"]');
+      if (refillInput) {
+        refillInput.disabled = !size.dataset.refillPrice;
+        if (refillInput.disabled && refillInput.checked) {
+          refillInput.checked = false;
+          buy?.querySelector<HTMLInputElement>('input[name$="-edition"][value="Iconic Edition"]')?.click();
+          return;
+        }
+      }
+      const current = buy?.querySelector<HTMLInputElement>('input[name$="-edition"]:checked');
+      const refill = current?.value === "Refill Only";
+      const price = (refill && size.dataset.refillPrice) || size.dataset.price || "";
+      const summary = current ? `${size.value} · ${current.value}` : size.value;
+      hero.querySelectorAll("[data-buy-price]").forEach((el) => (el.textContent = price));
+      hero.querySelectorAll("[data-buy-summary]").forEach((el) => (el.textContent = summary));
+      hero.querySelectorAll("[data-buy-size]").forEach((el) => (el.textContent = size.value));
+    };
+    buy?.addEventListener("change", update);
+
+    /* Quantity stepper */
+    hero.querySelectorAll<HTMLElement>("[data-quantity]").forEach((stepper) => {
+      const input = stepper.querySelector("input");
+      stepper.querySelectorAll<HTMLButtonElement>("[data-step]").forEach((button) =>
+        button.addEventListener("click", () => {
+          if (!input) return;
+          const value = Number(input.value) + Number(button.dataset.step);
+          input.value = String(Math.min(Number(input.max), Math.max(Number(input.min), value)));
+        }),
+      );
+    });
+
+    /* Sticky bar: shown once the buy box leaves the viewport */
+    const bar = hero.querySelector<HTMLElement>("[data-buy-bar]");
+    const actions = hero.querySelector<HTMLElement>(".product-hero_actions");
+    if (bar && actions) {
+      new IntersectionObserver(([entry]) => {
+        const visible = !entry.isIntersecting && entry.boundingClientRect.top < 0;
+        bar.classList.toggle("is-visible", visible);
+        bar.toggleAttribute("inert", !visible);
+        bar.setAttribute("aria-hidden", String(!visible));
+      }).observe(actions);
+      bar.querySelector("[data-buy-scroll]")?.addEventListener("click", () => {
+        actions.scrollIntoView({ behavior: "smooth", block: "center" });
+      });
+    }
+  });
+</script>
+
+<style is:global>
+  @layer components {
+    .product-hero_wrap {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+      padding-top: calc(var(--nav-height) + 1rem + 2.5rem);
+    }
+
+    .product-hero_crumbs ol {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+
+      & li + li::before {
+        content: "/";
+        margin-right: 0.5rem;
+      }
+
+      & a {
+        color: inherit;
+        text-decoration: none;
+      }
+    }
+
+    .product-hero_main {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr);
+      gap: 1.5rem var(--site-gutter);
+    }
+
+    /* Gallery */
+    .product-hero_gallery {
+      display: flex;
+      flex-direction: column;
+      gap: var(--site-gutter);
+    }
+
+    .product-hero_stage {
+      position: relative;
+      aspect-ratio: 785 / 900;
+      overflow: hidden;
+      background-color: var(--light-200);
+    }
+
+    .product-hero_slide {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      opacity: 0;
+      transition: opacity calc(var(--hover-duration) * 2) var(--hover-ease);
+
+      &[data-active] {
+        opacity: 1;
+      }
+    }
+
+    .product-hero_count {
+      position: absolute;
+      left: 1.25rem;
+      bottom: 1.25rem;
+      color: var(--dark-900);
+    }
+
+    .product-hero_arrows {
+      position: absolute;
+      right: 1.25rem;
+      bottom: 1.125rem;
+      display: flex;
+      gap: 0.75rem;
+
+      & button {
+        display: flex;
+        width: 1.375rem;
+        height: 1.375rem;
+        color: var(--dark-900);
+      }
+
+      & svg {
+        width: 100%;
+        height: 100%;
+      }
+    }
+
+    .product-hero_thumbs {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: var(--site-gutter);
+    }
+
+    .product-hero_thumb {
+      position: relative;
+      aspect-ratio: 382.5 / 340;
+      overflow: hidden;
+      background-color: var(--light-200);
+
+      & img {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: scale calc(var(--hover-duration) * 3) var(--hover-ease);
+      }
+
+      @media (hover: hover) {
+        &:hover img {
+          scale: 1.03;
+        }
+      }
+    }
+
+    /* Buy box */
+    .product-hero_buy {
+      display: flex;
+      flex-direction: column;
+      gap: 1.75rem;
+      min-width: 0;
+    }
+
+    .product-hero_intro {
+      display: flex;
+      flex-direction: column;
+      align-items: start;
+      gap: 1rem;
+    }
+
+    .product-hero_badges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .product-hero_title {
+      margin: 0;
+      line-height: 1.05;
+    }
+
+    .product-hero_rating {
+      display: flex;
+      gap: 0.5rem;
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .product-hero_price {
+      display: flex;
+      align-items: baseline;
+      flex-wrap: wrap;
+      gap: 0 1rem;
+    }
+
+    .product-hero_field {
+      display: flex;
+      flex-direction: column;
+      gap: 0.625rem;
+      min-width: 0;
+      margin: 0;
+      padding: 0;
+      border: 0;
+
+      & legend {
+        float: left;
+        padding: 0;
+      }
+    }
+
+    .product-hero_legend {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 1rem;
+
+      & a {
+        color: inherit;
+      }
+    }
+
+    .product-hero_options {
+      clear: both;
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .product-hero_option {
+      position: relative;
+      flex: 1 1 0;
+      min-width: 0;
+      min-height: 3.625rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 0.25rem;
+      padding: 1rem;
+      border: var(--border-width) solid var(--text);
+      cursor: pointer;
+      transition:
+        background-color var(--hover-duration) var(--hover-ease),
+        color var(--hover-duration) var(--hover-ease);
+
+      & input {
+        position: absolute;
+        opacity: 0;
+        pointer-events: none;
+      }
+
+      &:has(input:checked) {
+        background-color: var(--text);
+        color: var(--background);
+      }
+
+      &:has(input:disabled) {
+        opacity: 0.35;
+        cursor: not-allowed;
+      }
+
+      &:has(input:focus-visible) {
+        outline: var(--focus-width, 2px) solid var(--brand-500);
+        outline-offset: 2px;
+      }
+    }
+
+    .product-hero_actions {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .product-hero_add {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .product-hero_quantity {
+      flex: none;
+      display: flex;
+      align-items: center;
+      gap: 1.25rem;
+      height: 4.75rem;
+      padding-inline: 1.125rem;
+      border: var(--border-width) solid var(--text);
+
+      & button {
+        display: flex;
+        width: 1.25rem;
+        height: 1.25rem;
+        color: inherit;
+      }
+
+      & svg {
+        width: 100%;
+        height: 100%;
+      }
+
+      & input {
+        width: 1.25rem;
+        padding: 0;
+        border: 0;
+        background: none;
+        color: inherit;
+        text-align: center;
+        -moz-appearance: textfield;
+
+        &::-webkit-inner-spin-button,
+        &::-webkit-outer-spin-button {
+          appearance: none;
+          margin: 0;
+        }
+      }
+    }
+
+    .product-hero_info li {
+      padding-block: 0.75rem;
+      border-top: var(--border-width) solid var(--text);
+    }
+
+    /* Mobile keeps the label short, as in the 390 frame. */
+    .product-hero_add-price {
+      display: none;
+    }
+
+    /* Sticky buy bar */
+    .product-hero_bar {
+      position: fixed;
+      z-index: 50;
+      inset: auto 1rem 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.625rem 0.625rem 0.625rem 1rem;
+      background-color: color-mix(in lab, var(--light-100) 85%, transparent);
+      color: var(--dark-900);
+      border: var(--border-width) solid var(--light-100);
+      backdrop-filter: blur(var(--blur-main));
+      -webkit-backdrop-filter: blur(var(--blur-main));
+      opacity: 0;
+      translate: 0 calc(100% + 1rem);
+      transition:
+        opacity var(--hover-duration) var(--hover-ease),
+        translate calc(var(--hover-duration) * 2) var(--hover-ease);
+
+      &.is-visible {
+        opacity: 1;
+        translate: 0 0;
+      }
+    }
+
+    .product-hero_bar-image {
+      display: none;
+      width: 3.5rem;
+      height: 3.5rem;
+      object-fit: cover;
+      background-color: var(--light-200);
+    }
+
+    .product-hero_bar-text {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 0.125rem;
+      white-space: nowrap;
+
+      & .text-style-caption {
+        opacity: 0.6;
+      }
+    }
+
+    .product-hero_bar-desktop {
+      display: none;
+    }
+
+    .product-hero_bar-button {
+      flex: none;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      height: 3rem;
+      padding-inline: 1.125rem;
+      background-color: var(--brand-500);
+      color: var(--brand-text);
+      font-size: var(--text-main);
+      transition: background-color var(--hover-duration) var(--hover-ease);
+
+      & svg {
+        width: 1.125rem;
+        height: 1.125rem;
+      }
+
+      @media (hover: hover) {
+        &:hover {
+          background-color: color-mix(in lab, var(--brand-500), black 20%);
+        }
+      }
+    }
+
+    @media (width >= 48rem) {
+      .product-hero_add-price {
+        display: inline;
+      }
+
+      .product-hero_bar {
+        inset: auto var(--site-margin) 1.25rem;
+        padding: 0.4375rem;
+        gap: 1rem;
+      }
+
+      .product-hero_bar-image {
+        display: block;
+      }
+
+      .product-hero_bar-text .text-style-caption {
+        opacity: 1;
+      }
+
+      .product-hero_bar-desktop {
+        display: inline;
+      }
+
+      .product-hero_bar-mobile {
+        display: none;
+      }
+
+      .product-hero_bar-button {
+        width: 16.25rem;
+        height: 3.5rem;
+        padding-inline: 1.25rem;
+      }
+    }
+
+    @media (width >= 64rem) {
+      .product-hero_wrap {
+        padding-top: calc(var(--nav-height) + 1.25rem + 2rem);
+      }
+
+      .product-hero_main {
+        grid-template-columns: minmax(0, 785fr) minmax(0, 555fr);
+        align-items: start;
+      }
+    }
+  }
+</style>

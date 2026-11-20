@@ -20,8 +20,10 @@ type Props = HTMLAttributes<"div"> & {
   name: string;
   /** Short product description. */
   description?: string;
-  /** Size options with their prices. The first is selected. */
+  /** Size options with their prices. */
   sizes: Size[];
+  /** Index of the size selected on load. */
+  selected?: number;
   /** Tag over the packshot. */
   tag?: string;
   /** Packshot on the surface colour. */
@@ -41,6 +43,7 @@ const {
   name,
   description,
   sizes = [],
+  selected = 0,
   tag,
   packshot,
   texture,
@@ -52,6 +55,7 @@ const {
 } = Astro.props;
 
 const group = `size-${slug(name)}`;
+const initial = sizes[Math.min(selected, sizes.length - 1)];
 ---
 
 {render && name && sizes.length > 0 && packshot && lifestyle && (
@@ -94,7 +98,7 @@ const group = `size-${slug(name)}`;
       <div class="feature-product_title">
         <h3 class="text-style-h4">{name}</h3>
         <p class="feature-product_price text-style-price" aria-live="polite">
-          {sizes[0].price}
+          {initial?.price}
         </p>
       </div>
 
@@ -109,7 +113,7 @@ const group = `size-${slug(name)}`;
             name={group}
             label={size.label}
             value={size.label}
-            checked={index === 0}
+            checked={sizes[index] === initial}
             data-price={size.price}
           />
         ))}

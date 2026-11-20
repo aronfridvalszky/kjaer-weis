@@ -1,0 +1,116 @@
+---
+import type { CollectionEntry } from "astro:content";
+import Section from "@/components/wrapper/Section.astro";
+import Heading from "@/components/typography/Heading.astro";
+import ProductCard from "@/components/content/ProductCard.astro";
+import ArrowRight from "@lucide/astro/icons/arrow-right";
+
+type Props = {
+  /** Set to `false` to omit the component. */
+  render?: boolean;
+  /** Section title. */
+  title?: string;
+  /** Products to show. */
+  products: CollectionEntry<"products">[];
+  /** Link label beside the title. */
+  linkLabel?: string;
+  /** Link destination. */
+  linkHref?: string;
+};
+
+const {
+  render = true,
+  title = "Complete the ritual",
+  products = [],
+  linkLabel = "View all",
+  linkHref = "/#skin-care",
+} = Astro.props;
+---
+
+{render && products.length > 0 && (
+  <Section theme="cream" gap="0">
+    <div class="product-related_wrap">
+      <div class="product-related_header">
+        <Heading tag="h2" variant="h2" class="margin-block-0">{title}</Heading>
+        {linkLabel && (
+          <a class="product-related_link text-style-main" href={linkHref}>
+            {linkLabel}
+            <ArrowRight stroke-width={1.25} aria-hidden="true" />
+          </a>
+        )}
+      </div>
+      <ul class="product-related_list">
+        {products.map((product) => (
+          <li>
+            <ProductCard
+              name={product.data.name}
+              size={product.data.size}
+              price={product.data.price}
+              image={product.data.image}
+              soldOut={product.data.soldOut}
+              href={`/products/${product.id}`}
+            />
+          </li>
+        ))}
+      </ul>
+    </div>
+  </Section>
+)}
+
+<style is:global>
+  @layer components {
+    .product-related_wrap {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: clamp(2.5rem, 2.203rem + 0.762vw, 3rem);
+    }
+
+    .product-related_header {
+      display: flex;
+      flex-direction: column;
+      align-items: start;
+      gap: 1.5rem;
+    }
+
+    .product-related_link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: inherit;
+      text-decoration: none;
+
+      & svg {
+        width: 1.25rem;
+        height: 1.25rem;
+        transition: translate var(--hover-duration) var(--hover-ease);
+      }
+
+      @media (hover: hover) {
+        &:hover svg {
+          translate: 0.25rem 0;
+        }
+      }
+    }
+
+    .product-related_list {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 2rem var(--site-gutter);
+    }
+
+    @media (width >= 48rem) {
+      .product-related_list {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+      }
+    }
+
+    @media (width >= 64rem) {
+      .product-related_header {
+        flex-direction: row;
+        align-items: end;
+        justify-content: space-between;
+      }
+    }
+  }
+</style>

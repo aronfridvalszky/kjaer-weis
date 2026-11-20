@@ -1,0 +1,166 @@
+---
+import { Image } from "astro:assets";
+import Section from "@/components/wrapper/Section.astro";
+import Eyebrow from "@/components/typography/Eyebrow.astro";
+import PlusIcon from "@lucide/astro/icons/plus";
+
+type Props = {
+  /** Set to `false` to omit the component. */
+  render?: boolean;
+  /** Tag above the title. */
+  tag?: string;
+  /** Section title. */
+  title: string;
+  /** Photo beside the title. */
+  image: ImageMetadata;
+  /** Photo description. */
+  imageAlt?: string;
+  /** Key ingredients. */
+  items: { name: string; note: string; text: string }[];
+  /** Full INCI list, revealed on demand. */
+  fullList?: string;
+};
+
+const { render = true, tag, title, image, imageAlt = "", items = [], fullList } = Astro.props;
+---
+
+{render && title && items.length > 0 && (
+  <Section gap="0">
+    <div class="product-ingredients_wrap">
+      <div class="product-ingredients_top">
+        <div class="product-ingredients_title">
+          {tag && <Eyebrow variant="tag">{tag}</Eyebrow>}
+          <h2 class="text-style-h2">{title}</h2>
+        </div>
+        <div class="product-ingredients_visual">
+          <Image src={image} alt={imageAlt} widths={[500, 800, 1200]} sizes="(width >= 64rem) 40vw, 100vw" />
+        </div>
+      </div>
+
+      <ol class="product-ingredients_list">
+        {items.map((item, index) => (
+          <li class="product-ingredients_item">
+            <span class="product-ingredients_number text-style-caption">{String(index + 1).padStart(2, "0")}</span>
+            <h3 class="product-ingredients_name">{item.name}</h3>
+            <span class="product-ingredients_note text-style-overline">{item.note}</span>
+            <p class="product-ingredients_text text-style-main">{item.text}</p>
+          </li>
+        ))}
+      </ol>
+
+      {fullList && (
+        <details class="product-ingredients_full">
+          <summary class="text-style-label">
+            Full ingredients list
+            <PlusIcon stroke-width={1.25} aria-hidden="true" />
+          </summary>
+          <p class="text-style-small">{fullList}</p>
+        </details>
+      )}
+    </div>
+  </Section>
+)}
+
+<style is:global>
+  @layer components {
+    .product-ingredients_wrap {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      /* 40px on mobile → 56px at 1440. */
+      gap: clamp(2.5rem, 1.907rem + 1.524vw, 3.5rem);
+    }
+
+    .product-ingredients_top {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr);
+      gap: 1.5rem var(--site-gutter);
+    }
+
+    .product-ingredients_title {
+      display: flex;
+      flex-direction: column;
+      align-items: start;
+      gap: 1.5rem;
+
+      & h2 {
+        margin: 0;
+        line-height: 1;
+      }
+    }
+
+    .product-ingredients_visual {
+      position: relative;
+      aspect-ratio: 555 / 400;
+      overflow: hidden;
+      background-color: var(--light-200);
+
+      & img {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+    }
+
+    .product-ingredients_item {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr);
+      gap: 1.25rem;
+      padding-block: 1.75rem;
+      border-top: var(--border-width) solid var(--text);
+    }
+
+    .product-ingredients_name {
+      margin: 0;
+      font-family: var(--serif-family);
+      font-style: italic;
+      font-weight: 400;
+      font-size: clamp(1.875rem, 1.086rem + 3.238vw, 4rem);
+      line-height: 1.05;
+    }
+
+    .product-ingredients_full {
+      & summary {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        list-style: none;
+        cursor: pointer;
+
+        &::-webkit-details-marker {
+          display: none;
+        }
+      }
+
+      & svg {
+        width: 1.25rem;
+        height: 1.25rem;
+        transition: rotate var(--open-duration) var(--open-ease);
+      }
+
+      &[open] svg {
+        rotate: 45deg;
+      }
+
+      & p {
+        max-width: 50rem;
+        margin-top: 1rem;
+      }
+    }
+
+    /* Desktop row: 95 number · name · air · note · 440 text. */
+    @media (width >= 64rem) {
+      .product-ingredients_top {
+        grid-template-columns: minmax(0, 785fr) minmax(0, 555fr);
+      }
+
+      .product-ingredients_item {
+        grid-template-columns: 5.9375rem minmax(0, 1fr) auto minmax(0, 27.5rem);
+        align-items: center;
+        column-gap: 1.25rem;
+      }
+    }
+  }
+</style>

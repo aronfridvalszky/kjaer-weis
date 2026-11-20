@@ -1,0 +1,157 @@
+---
+import { Image } from "astro:assets";
+import Section from "@/components/wrapper/Section.astro";
+import DisplayPair from "@/components/content/DisplayPair.astro";
+import Button from "@/components/Button.astro";
+
+type Props = {
+  /** Set to `false` to omit the component. */
+  render?: boolean;
+  /** First display line. */
+  title: string;
+  /** Accent line. */
+  accent: string;
+  /** Serif statement under the title. */
+  text: string;
+  /** Edition explainers. */
+  editions?: { name: string; price: string; text: string }[];
+  /** Photo on the right. */
+  image: ImageMetadata;
+  /** Photo description. */
+  imageAlt?: string;
+  /** Button label. */
+  buttonLabel?: string;
+  /** Button destination. */
+  buttonHref?: string;
+};
+
+const {
+  render = true,
+  title,
+  accent,
+  text,
+  editions = [],
+  image,
+  imageAlt = "",
+  buttonLabel = "How to refill",
+  buttonHref = "#",
+} = Astro.props;
+---
+
+{render && title && accent && (
+  <Section theme="dark" gap="0" id="packaging">
+    <div class="product-packaging_wrap">
+      <div class="product-packaging_story">
+        <DisplayPair
+          title={title}
+          accent={accent}
+          mobile={{
+            width: 350,
+            height: 97,
+            column: 350,
+            line: { x: -4, y: 0, size: 56 },
+            accent: { x: 116, y: 34, size: 66 },
+          }}
+          desktop={{
+            width: 760,
+            height: 270,
+            column: 785,
+            line: { x: -10, y: 0, size: 140 },
+            accent: { x: 279, y: 85, size: 190 },
+          }}
+        />
+        <p class="product-packaging_text text-style-h5">{text}</p>
+        {editions.length > 0 && (
+          <ul class="product-packaging_editions">
+            {editions.map((edition) => (
+              <li class="product-packaging_edition">
+                <h3 class="text-style-h6">{edition.name}</h3>
+                <p class="text-style-caption">{edition.price}</p>
+                <p class="text-style-small">{edition.text}</p>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+
+      <div class="product-packaging_aside">
+        <div class="product-packaging_visual">
+          <Image src={image} alt={imageAlt} widths={[500, 800, 1200]} sizes="(width >= 64rem) 40vw, 100vw" />
+        </div>
+        {buttonLabel && (
+          <Button element="link" href={buttonHref} emphasis="secondary" icon="arrow" class="width-full">
+            {buttonLabel}
+          </Button>
+        )}
+      </div>
+    </div>
+  </Section>
+)}
+
+<style is:global>
+  @layer components {
+    .product-packaging_wrap {
+      width: 100%;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr);
+      gap: 2.5rem var(--site-gutter);
+    }
+
+    .product-packaging_story {
+      display: flex;
+      flex-direction: column;
+      gap: 3rem;
+    }
+
+    .product-packaging_text {
+      max-width: 43.75rem;
+    }
+
+    .product-packaging_editions {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr);
+      gap: 1.25rem;
+    }
+
+    .product-packaging_edition {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      padding-top: 1.25rem;
+      border-top: var(--border-width) solid var(--text);
+    }
+
+    .product-packaging_aside {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    .product-packaging_visual {
+      position: relative;
+      aspect-ratio: 555 / 560;
+      overflow: hidden;
+      background-color: var(--light-200);
+
+      & img {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+    }
+
+    @media (width >= 48rem) {
+      .product-packaging_editions {
+        grid-template-columns: repeat(2, minmax(0, 20.625rem));
+      }
+    }
+
+    @media (width >= 64rem) {
+      .product-packaging_wrap {
+        grid-template-columns: minmax(0, 785fr) minmax(0, 555fr);
+      }
+    }
+  }
+</style>

@@ -10,5 +10,80 @@
     "tone": "accent"
   },
   "image": "../../assets/images/packshots/the-beautiful-oil.jpg",
-  "order": 1
+  "order": 1,
+
+  "description": "Skin nourishment, bottled. A lightweight, active facial oil to treat signs of dehydration and impart a healthy, radiant glow.",
+  "badges": ["Certified organic", "Vegan", "Refillable"],
+  "rating": { "score": 4.8, "count": 320 },
+  "sizes": [
+    { "label": "65 ml", "price": "$229", "refillPrice": "$189" },
+    { "label": "30 ml", "price": "$149", "refillPrice": "$119" },
+    { "label": "3 ml", "price": "$25" }
+  ],
+  "defaultSize": 1,
+  "gallery": [
+    { "src": "../../assets/images/oil-drops.jpg", "alt": "Two drops of golden oil" },
+    { "src": "../../assets/images/oil-model.jpg", "alt": "Model holding The Beautiful Oil against her cheek, winking" }
+  ],
+  "details": [
+    { "title": "Benefits", "body": "Hydrates and locks in moisture, improves skin tone and absorbs rapidly — a moisturiser for your skin and a primer for your makeup." },
+    { "title": "Ingredients", "body": "Cold-pressed, certified-organic Sweet Almond Oil, Root of Light and Rosehip Seed Oil, with Jojoba and Sea Buckthorn for a healthy glow." },
+    { "title": "Packaging", "body": "The Iconic Edition glass bottle is made to keep. When you run out, order the refill and pour it in — less waste, same ritual." },
+    { "title": "How to use", "body": "Warm 3–4 drops between your palms and press onto clean skin, morning and night. Wait a few minutes before applying makeup." },
+    { "title": "FAQs", "body": "Suitable for all skin types, including sensitive skin. Store away from direct sunlight and use within 12 months of opening." }
+  ],
+  "statement": {
+    "title": "Golden,",
+    "accent": "weightless",
+    "image": "../../assets/images/pdp/before-after.jpg",
+    "imageAlt": "Before and after: skin looks dewy and radiant after The Beautiful Oil",
+    "text": "Rapidly absorbed — instant, dewy radiance without leaving a film on the skin.",
+    "benefits": [
+      { "title": "Improves skin tone", "text": "Helps reduce the appearance of pigmentation, dullness, redness and blemishes." },
+      { "title": "Hydrates & locks moisture", "text": "Balances the complexion and melts away dehydration, locking moisture deep into the skin." },
+      { "title": "Moisturiser & primer", "text": "Works as a moisturiser for your skin and a primer for your makeup — glow instantly and over time." }
+    ]
+  },
+  "ingredients": {
+    "tag": "Vegan + CCPB certified organic",
+    "title": "Ingredients with integrity.",
+    "image": "../../assets/images/pdp/ingredients-flatlay.jpg",
+    "imageAlt": "Kjaer Weis bottles laid out on blue linen",
+    "items": [
+      { "name": "Sweet Almond Oil", "note": "Certified organic", "text": "Hydrates and locks in moisture." },
+      { "name": "Root of Light", "note": "Certified organic", "text": "Brightens and illuminates." },
+      { "name": "Rosehip Seed Oil", "note": "Certified organic", "text": "Soothes and reduces the appearance of dark marks." }
+    ],
+    "fullList": "Prunus Amygdalus Dulcis (Sweet Almond) Oil*, Simmondsia Chinensis (Jojoba) Seed Oil*, Rosa Canina (Rosehip) Seed Oil*, Hippophae Rhamnoides (Sea Buckthorn) Fruit Oil*, Coleus Forskohlii (Root of Light) Root Extract*, Tocopherol. *Certified organic."
+  },
+  "routine": {
+    "title": "Cleanse, tone,",
+    "accent": "then glow.",
+    "steps": [
+      { "product": "the-cleanser", "text": "Start fresh: lift away the day." },
+      { "product": "the-toner", "text": "Balance and prepare the skin." },
+      { "product": "the-beautiful-oil", "text": "Fortify with nutrients, radiance and long-lasting hydration." }
+    ],
+    "tip": "Tip — wait 3–4 minutes for the oil to absorb before applying makeup. Also lovely on the ends of hair, nails and cuticles."
+  },
+  "packaging": {
+    "title": "Polish me,",
+    "accent": "please.",
+    "text": "Like a piece of jewelry, each Iconic Edition case is made to be kept and treasured — cultivating an alluring patina with time.",
+    "editions": [
+      { "name": "Iconic Edition", "price": "$149", "text": "The case + the formula. Keep it for life." },
+      { "name": "Refill Only", "price": "from $119", "text": "A fresh formula that slips into your case." }
+    ],
+    "image": "../../assets/images/packshots/the-body-oil.jpg",
+    "imageAlt": "The Body Oil in its refillable glass bottle"
+  },
+  "reviews": {
+    "items": [
+      { "quote": "My favorite for years. The only one I feel right using given having sensitive skin.", "author": "T. P. · 3 ml · Verified" },
+      { "quote": "I have used it for years and it has provided a healthy, calm look for my face.", "author": "Verified buyer" },
+      { "quote": "She has been using it for years and it has a permanent place in my gift list for her.", "author": "M. R. · 30 ml · Verified" }
+    ],
+    "source": "Reviews sourced from kjaerweis.com"
+  },
+  "related": ["the-cleanser", "the-toner", "the-beautiful-hydration-serum", "the-beautiful-eye-balm"]
 }

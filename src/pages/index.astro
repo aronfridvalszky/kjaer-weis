@@ -11,7 +11,7 @@ import IntroStory from "@/components/content/IntroStory.astro";
 import bodyOilModel from "@/assets/images/bodyoil-model.jpg";
 import ProductGrid from "@/components/content/ProductGrid.astro";
 
-const products = (await getCollection("products")).sort((a, b) => a.data.order - b.data.order);
+const products = (await getCollection("products", (p) => p.data.listed)).sort((a, b) => a.data.order - b.data.order);
 import oilModel from "@/assets/images/oil-model.jpg";
 import beautifulOil from "@/assets/images/the-beautiful-oil.jpg";
 import oilDrops from "@/assets/images/oil-drops.jpg";
@@ -55,10 +55,11 @@ import dropperSerum from "@/assets/images/journal/dropper-serum.jpg";
       name="The Beautiful Oil"
       description="Lightweight active facial oil for a healthy, radiant glow."
       sizes={[
-        { label: "65 ml", price: "$149" },
-        { label: "30 ml", price: "$88" },
-        { label: "3 ml", price: "$16" },
+        { label: "65 ml", price: "$229" },
+        { label: "30 ml", price: "$149" },
+        { label: "3 ml", price: "$25" },
       ]}
+      selected={1}
       tag="Bestseller"
       packshot={beautifulOil}
       texture={oilDrops}
@@ -112,7 +113,7 @@ import dropperSerum from "@/assets/images/journal/dropper-serum.jpg";
   </Section>
 
   {/* Product grid */}
-  <Section gap="0">
+  <Section gap="0" id="skin-care">
     <ProductGrid
       title="Skin Care"
       products={products}

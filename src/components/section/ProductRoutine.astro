@@ -1,0 +1,204 @@
+---
+import { Image } from "astro:assets";
+import Section from "@/components/wrapper/Section.astro";
+import DisplayPair from "@/components/content/DisplayPair.astro";
+import Eyebrow from "@/components/typography/Eyebrow.astro";
+import Button from "@/components/Button.astro";
+
+type Step = {
+  /** Product name. */
+  name: string;
+  /** Packshot. */
+  image: ImageMetadata;
+  /** Product page link. */
+  href: string;
+  /** What this step does. */
+  text: string;
+  /** Marks the product being viewed. */
+  current?: boolean;
+};
+
+type Props = {
+  /** Set to `false` to omit the component. */
+  render?: boolean;
+  /** First display line. */
+  title: string;
+  /** Accent line. */
+  accent: string;
+  /** Routine steps, in order. */
+  steps: Step[];
+  /** Serif tip under the steps. */
+  tip?: string;
+  /** Button label. */
+  buttonLabel?: string;
+  /** Button destination. */
+  buttonHref?: string;
+};
+
+const {
+  render = true,
+  title,
+  accent,
+  steps = [],
+  tip,
+  buttonLabel = "Shop the routine",
+  buttonHref = "#",
+} = Astro.props;
+---
+
+{render && title && steps.length > 0 && (
+  <Section theme="cream" gap="0">
+    <div class="product-routine_wrap">
+      <DisplayPair
+        title={title}
+        accent={accent}
+        mobile={{
+          width: 350,
+          height: 93,
+          column: 350,
+          line: { x: -4, y: 0, size: 56 },
+          accent: { x: 190, y: 45, size: 42 },
+        }}
+        desktop={{
+          width: 1360,
+          height: 302,
+          column: 1360,
+          line: { x: -10, y: 0, size: 140 },
+          accent: { x: 650, y: 122, size: 190 },
+        }}
+      />
+
+      <ol class="product-routine_steps">
+        {steps.map((step, index) => (
+          <li class="product-routine_step">
+            <div class="product-routine_visual">
+              <Image src={step.image} alt="" widths={[400, 700, 900]} sizes="(width >= 48rem) 33vw, 100vw" />
+              {step.current && (
+                <div class="product-routine_tag">
+                  <Eyebrow variant="tag" tone="accent-filled" surface="photo" tag="span">You are here</Eyebrow>
+                </div>
+              )}
+            </div>
+            <span class="product-routine_number text-style-caption">{String(index + 1).padStart(2, "0")}</span>
+            <h3 class="text-style-h5">
+              {step.current ? step.name : <a class="product-routine_link" href={step.href}>{step.name}</a>}
+            </h3>
+            <p class="product-routine_text text-style-main">{step.text}</p>
+          </li>
+        ))}
+      </ol>
+
+      {(tip || buttonLabel) && (
+        <div class="product-routine_footer">
+          {tip && <p class="text-style-h6">{tip}</p>}
+          {buttonLabel && (
+            <div class="product-routine_cta">
+              <Button element="link" href={buttonHref} icon="arrow" class="width-full">{buttonLabel}</Button>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  </Section>
+)}
+
+<style is:global>
+  @layer components {
+    .product-routine_wrap {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: clamp(2.5rem, 1.907rem + 1.524vw, 3.5rem);
+    }
+
+    .product-routine_steps {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr);
+      gap: 1.25rem var(--site-gutter);
+    }
+
+    .product-routine_step {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .product-routine_visual {
+      position: relative;
+      aspect-ratio: 440 / 480;
+      overflow: hidden;
+      background-color: var(--light-200);
+
+      & img {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: scale calc(var(--hover-duration) * 3) var(--hover-ease);
+      }
+    }
+
+    .product-routine_tag {
+      position: absolute;
+      top: 1rem;
+      left: 1rem;
+    }
+
+    .product-routine_number {
+      opacity: 0.5;
+    }
+
+    .product-routine_text {
+      opacity: 0.75;
+    }
+
+    .product-routine_link {
+      color: inherit;
+      text-decoration: none;
+
+      &::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+      }
+    }
+
+    @media (hover: hover) {
+      .product-routine_step:has(.product-routine_link:hover) img {
+        scale: 1.03;
+      }
+    }
+
+    .product-routine_footer {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    @media (width >= 48rem) {
+      .product-routine_steps {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+    }
+
+    @media (width >= 64rem) {
+      .product-routine_footer {
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        gap: var(--site-gutter);
+
+        & p {
+          max-width: 56.25rem;
+        }
+      }
+
+      .product-routine_cta {
+        flex: none;
+        width: 20rem;
+      }
+    }
+  }
+</style>

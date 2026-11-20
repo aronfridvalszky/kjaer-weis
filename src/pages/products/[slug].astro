@@ -1,0 +1,71 @@
+---
+import type { GetStaticPaths } from "astro";
+import { getCollection, getEntries, getEntry, type CollectionEntry } from "astro:content";
+import Layout from "@/layouts/BaseLayout.astro";
+import ProductHero from "@/components/section/ProductHero.astro";
+import ProductStatement from "@/components/section/ProductStatement.astro";
+import ProductIngredients from "@/components/section/ProductIngredients.astro";
+import ProductRoutine from "@/components/section/ProductRoutine.astro";
+import ProductPackaging from "@/components/section/ProductPackaging.astro";
+import ProductReviews from "@/components/section/ProductReviews.astro";
+import ProductRelated from "@/components/section/ProductRelated.astro";
+
+export const getStaticPaths = (async () => {
+  const products = await getCollection("products");
+  return products.map((product) => ({ params: { slug: product.id }, props: { product } }));
+}) satisfies GetStaticPaths;
+
+type Props = { product: CollectionEntry<"products"> };
+
+const { product } = Astro.props;
+const data = product.data;
+
+const routineSteps = data.routine
+  ? await Promise.all(
+      data.routine.steps.map(async (step) => {
+        const entry = await getEntry(step.product);
+        if (!entry) throw new Error(`Routine step "${step.product.id}" not found`);
+        return {
+          name: entry.data.name,
+          image: entry.data.image,
+          href: `/products/${entry.id}`,
+          text: step.text,
+          current: entry.id === product.id,
+        };
+      }),
+    )
+  : [];
+
+/* Related products, or the next four in shop order when none are set. */
+const related =
+  data.related.length > 0
+    ? await getEntries(data.related)
+    : (await getCollection("products", (p) => p.id !== product.id && p.data.listed))
+        .sort((a, b) => a.data.order - b.data.order)
+        .slice(0, 4);
+---
+
+<Layout title={data.name} description={data.description}>
+  <ProductHero product={product} />
+
+  {data.statement && <ProductStatement {...data.statement} />}
+
+  {data.ingredients && <ProductIngredients {...data.ingredients} />}
+
+  {data.routine && (
+    <ProductRoutine
+      title={data.routine.title}
+      accent={data.routine.accent}
+      steps={routineSteps}
+      tip={data.routine.tip}
+    />
+  )}
+
+  {data.packaging && <ProductPackaging {...data.packaging} />}
+
+  {data.rating && data.reviews && (
+    <ProductReviews score={data.rating.score} count={data.rating.count} {...data.reviews} />
+  )}
+
+  <ProductRelated products={related} />
+</Layout>

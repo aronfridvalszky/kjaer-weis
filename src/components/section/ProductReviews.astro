@@ -1,0 +1,130 @@
+---
+import Section from "@/components/wrapper/Section.astro";
+import Button from "@/components/Button.astro";
+
+type Props = {
+  /** Set to `false` to omit the component. */
+  render?: boolean;
+  /** Average rating. */
+  score: number;
+  /** Number of reviews. */
+  count: number;
+  /** Quotes to show. */
+  items: { quote: string; author: string }[];
+  /** Source note under the quotes. */
+  source?: string;
+  /** Button label. */
+  buttonLabel?: string;
+  /** Button destination. */
+  buttonHref?: string;
+};
+
+const {
+  render = true,
+  score,
+  count,
+  items = [],
+  source,
+  buttonLabel = "Write a review",
+  buttonHref = "#",
+} = Astro.props;
+---
+
+{render && items.length > 0 && (
+  <Section gap="0" id="reviews">
+    <div class="product-reviews_wrap">
+      <div class="product-reviews_summary">
+        <p class="product-reviews_score text-style-display" aria-label={`Rated ${score} out of 5`}>{score}</p>
+        <p class="product-reviews_stars text-style-h5" aria-hidden="true">★★★★★</p>
+        <p class="text-style-small">{count} verified reviews</p>
+        {buttonLabel && (
+          <div class="product-reviews_cta">
+            <Button element="link" href={buttonHref} emphasis="secondary" size="small" icon="arrow" class="width-full">
+              {buttonLabel}
+            </Button>
+          </div>
+        )}
+      </div>
+
+      <div class="product-reviews_list">
+        <ul class="product-reviews_quotes">
+          {items.map((item) => (
+            <li class="product-reviews_quote">
+              <span class="product-reviews_stars text-style-small" aria-label="5 stars">★★★★★</span>
+              <blockquote class="text-style-h5">“{item.quote}”</blockquote>
+              <p class="text-style-caption">{item.author}</p>
+            </li>
+          ))}
+        </ul>
+        {source && <p class="text-style-caption">{source}</p>}
+      </div>
+    </div>
+  </Section>
+)}
+
+<style is:global>
+  @layer components {
+    .product-reviews_wrap {
+      width: 100%;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr);
+      gap: 2.5rem var(--site-gutter);
+    }
+
+    .product-reviews_summary {
+      display: flex;
+      flex-direction: column;
+      align-items: start;
+      gap: 1rem;
+    }
+
+    .product-reviews_cta {
+      width: min(100%, 17.5rem);
+    }
+
+    .product-reviews_score {
+      margin: 0;
+    }
+
+    .product-reviews_stars {
+      color: var(--brand-500);
+      letter-spacing: 0.05em;
+    }
+
+    .product-reviews_list {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    .product-reviews_quotes {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr);
+      gap: 1.25rem var(--site-gutter);
+    }
+
+    .product-reviews_quote {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      padding-top: 1.25rem;
+      border-top: var(--border-width) solid var(--text);
+
+      & blockquote {
+        margin: 0;
+      }
+    }
+
+    @media (width >= 48rem) {
+      .product-reviews_quotes {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+    }
+
+    @media (width >= 64rem) {
+      .product-reviews_wrap {
+        grid-template-columns: minmax(0, 440fr) minmax(0, 900fr);
+      }
+    }
+  }
+</style>

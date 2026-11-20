@@ -1,0 +1,11 @@
+{
+  "name": "The Toner",
+  "size": "100 ml",
+  "price": "$88",
+  "categories": [
+    "face"
+  ],
+  "image": "../../assets/images/packshots/the-toner.jpg",
+  "order": 9,
+  "listed": false
+}
