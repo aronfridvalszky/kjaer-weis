@@ -1,0 +1,198 @@
+import * as THREE from "three";
+import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
+import { MeshoptDecoder } from "three/addons/libs/meshopt_decoder.module.js";
+import { gsap } from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+
+gsap.registerPlugin(ScrollTrigger);
+
+/* Main tuning knobs. */
+const TWIST = Math.PI * 2;
+const BULLET_DROP = 14.5;
+const SCROLL_LENGTH = () => window.innerHeight * 1;
+
+/* Aspect the Blender cameras were framed for. */
+const AUTHORED_ASPECT = 4 / 5;
+
+type Options = {
+  holder: HTMLElement;
+  section: HTMLElement;
+  model: string;
+  /** Show the end state without scroll animation. */
+  still?: boolean;
+};
+
+/* Studio light: a light grey room, three softboxes and dark flags, seen only in reflections. Units are mm. */
+function studioEnvironment(renderer: THREE.WebGLRenderer, camera: THREE.Object3D) {
+  const room = new THREE.Scene();
+  const emissive = (k: number, side: THREE.Side = THREE.DoubleSide) =>
+    new THREE.MeshBasicMaterial({ color: new THREE.Color(0xffffff).multiplyScalar(k), side });
+
+  room.add(new THREE.Mesh(new THREE.SphereGeometry(800, 48, 24), emissive(0.6, THREE.BackSide)));
+
+  const floor = new THREE.Mesh(new THREE.PlaneGeometry(4000, 4000), emissive(0.08));
+  floor.rotation.x = -Math.PI / 2;
+  floor.position.y = -150;
+  room.add(floor);
+
+  /* Positions are relative to the camera: `across` to its right, `toward` it. */
+  const toCamera = new THREE.Vector3(camera.position.x, 0, camera.position.z).normalize();
+  const right = new THREE.Vector3(toCamera.z, 0, -toCamera.x);
+  const panel = (w: number, h: number, across: number, toward: number, y: number, k: number) => {
+    const mesh = new THREE.Mesh(new THREE.PlaneGeometry(w, h), emissive(k));
+    mesh.position.copy(right).multiplyScalar(across).addScaledVector(toCamera, toward).setY(y);
+    mesh.lookAt(0, y, 0);
+    room.add(mesh);
+    return mesh;
+  };
+
+  /* Tall softboxes left and right give the crisp vertical highlights. */
+  panel(15, 120, -60, 20, 40, 8);
+  panel(15, 120, 60, 20, 40, 8);
+  /* Angled strip above and behind. */
+  panel(120, 30, 0, -40, 90, 8).lookAt(0, 0, 0);
+  /* Dark flags for contrast bands in the chrome. */
+  panel(30, 200, -120, -60, 40, 0.02);
+  panel(30, 200, 120, -60, 40, 0.02);
+  panel(40, 200, 0, -200, 40, 0.03);
+
+  const pmrem = new THREE.PMREMGenerator(renderer);
+  const texture = pmrem.fromScene(room, 0.01, 1, 2000).texture;
+  pmrem.dispose();
+  room.traverse((node) => {
+    if (node instanceof THREE.Mesh) {
+      node.geometry.dispose();
+      node.material.dispose();
+    }
+  });
+  return texture;
+}
+
+export async function mountLipstickTwist({ holder, section, model, still = false }: Options) {
+  let renderer: THREE.WebGLRenderer;
+  try {
+    renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+  } catch {
+    return;
+  }
+
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  renderer.toneMapping = THREE.AgXToneMapping;
+  renderer.toneMappingExposure = 1.1;
+  renderer.outputColorSpace = THREE.SRGBColorSpace;
+  renderer.setClearColor(0x000000, 0);
+  renderer.domElement.setAttribute("aria-hidden", "true");
+
+  const loader = new GLTFLoader().setMeshoptDecoder(MeshoptDecoder);
+  let gltf;
+  try {
+    gltf = await loader.loadAsync(model);
+  } catch {
+    renderer.dispose();
+    return;
+  }
+
+  /* gltf.scene is a Group; environment lighting needs a real Scene. */
+  const scene = new THREE.Scene();
+  scene.add(gltf.scene);
+  const base = scene.getObjectByName("Base");
+  const bullet = scene.getObjectByName("Bullet");
+  const camStart = scene.getObjectByName("CamStart");
+  const camEnd = scene.getObjectByName("CamEnd");
+  if (!base || !bullet || !camStart || !camEnd) {
+    renderer.dispose();
+    return;
+  }
+
+  const source = gltf.cameras[0] as THREE.PerspectiveCamera | undefined;
+  const camera = new THREE.PerspectiveCamera(
+    source ? source.fov : THREE.MathUtils.radToDeg(0.4174),
+    AUTHORED_ASPECT,
+    1,
+    10000,
+  );
+
+  scene.environment = studioEnvironment(renderer, camEnd);
+  scene.environmentIntensity = 1;
+
+  /* Camera poses in world space (the glTF cameras look down their own −Z). */
+  const pose = (node: THREE.Object3D) => {
+    node.updateWorldMatrix(true, false);
+    const position = new THREE.Vector3();
+    const quaternion = new THREE.Quaternion();
+    node.matrixWorld.decompose(position, quaternion, new THREE.Vector3());
+    return { position, quaternion };
+  };
+  const from = pose(camStart);
+  const to = pose(camEnd);
+
+  /* Exported transforms are the end state. */
+  const bulletEnd = bullet.position.y;
+  const state = { twist: still ? 0 : 1, rise: still ? 1 : 0, camera: still ? 1 : 0 };
+
+  /* Wider or narrower canvases: move back along the view axis to keep the framing. */
+  let pullBack = 1;
+  const forward = new THREE.Vector3();
+
+  const apply = () => {
+    const angle = TWIST * state.twist;
+    base.rotation.y = angle;
+    bullet.rotation.y = angle;
+    bullet.position.y = bulletEnd - BULLET_DROP * (1 - state.rise);
+
+    camera.position.lerpVectors(from.position, to.position, state.camera);
+    camera.quaternion.slerpQuaternions(from.quaternion, to.quaternion, state.camera);
+    if (pullBack !== 1) {
+      forward.set(0, 0, -1).applyQuaternion(camera.quaternion);
+      const distance = camera.position.length();
+      camera.position.addScaledVector(forward, -distance * (pullBack - 1));
+    }
+  };
+
+  let queued = false;
+  const render = () => {
+    queued = false;
+    apply();
+    renderer.render(scene, camera);
+  };
+  const requestRender = () => {
+    if (queued) return;
+    queued = true;
+    requestAnimationFrame(render);
+  };
+
+  const resize = () => {
+    const { width, height } = holder.getBoundingClientRect();
+    if (!width || !height) return;
+    renderer.setSize(width, height, false);
+    camera.aspect = width / height;
+    pullBack = camera.aspect < AUTHORED_ASPECT ? AUTHORED_ASPECT / camera.aspect : 1;
+    camera.updateProjectionMatrix();
+    requestRender();
+  };
+  new ResizeObserver(resize).observe(holder);
+
+  holder.append(renderer.domElement);
+  resize();
+  render();
+  holder.classList.add("is-live");
+
+  if (still) return;
+
+  gsap
+    .timeline({
+      onUpdate: requestRender,
+      scrollTrigger: {
+        trigger: section,
+        start: "top top",
+        end: () => `+=${SCROLL_LENGTH()}`,
+        pin: true,
+        /* The parent is a flex column, where GSAP turns spacing off by default. */
+        pinSpacing: true,
+        scrub: 0.6,
+        invalidateOnRefresh: true,
+      },
+    })
+    .to(state, { twist: 0, rise: 1, ease: "none", duration: 1 }, 0)
+    .to(state, { camera: 1, ease: "power2.inOut", duration: 1 }, 0);
+}

@@ -3,7 +3,7 @@ import type { ComponentProps } from "astro/types";
 import { Image } from "astro:assets";
 import Section from "@/components/wrapper/Section.astro";
 import Button from "@/components/Button.astro";
-import poster from "@/assets/images/lipstick-hero-render.png";
+import poster from "@/assets/images/lipstick-hero-start.png";
 
 type Props = Pick<
   ComponentProps<typeof Section>,
@@ -95,11 +95,12 @@ const {
   document.querySelectorAll<HTMLElement>("[data-hero-home]").forEach((section) => {
     const holder = section.querySelector<HTMLElement>(".hero-home_object");
     const model = holder?.dataset.model;
-    if (!holder || !model || prefersReduced.matches) return;
+    if (!holder || !model) return;
 
+    /* Reduced motion: the end state, without the scroll twist. */
     const start = () =>
-      import("@/scripts/lipstick-scene.ts").then(({ mountLipstick }) =>
-        mountLipstick({ holder, section, model }),
+      import("@/scripts/lipstick-twist.ts").then(({ mountLipstickTwist }) =>
+        mountLipstickTwist({ holder, section, model, still: prefersReduced.matches }),
       );
 
     if ("requestIdleCallback" in window) {
