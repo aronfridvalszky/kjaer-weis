@@ -124,16 +124,22 @@ const content = await slotContent(Astro.slots);
       content-visibility: visible;
     }
 
-    /* Open: the body sits 12px under the title and takes over the 24px foot. */
+    /*
+     * Open: the body sits 12px under the title and takes over the 24px foot.
+     * Most of the 12px is padding inside the body: the text is trimmed to its
+     * cap height, so ascenders reach above its box and the clipped
+     * ::details-content would cut them off.
+     */
     .accordion_toggle {
       transition: padding-bottom var(--open-duration) var(--open-ease);
     }
 
     .accordion_item:is([open], .stacki-opened) .accordion_toggle {
-      padding-bottom: 0.75rem;
+      padding-bottom: 0.25rem;
     }
 
     .accordion_body {
+      padding-top: 0.5rem;
       padding-right: 1.5rem;
       padding-bottom: 1.5rem;
     }
