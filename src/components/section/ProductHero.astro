@@ -197,7 +197,7 @@ const summary = (size: string) => (hasRefill ? `${size} · Iconic Edition` : siz
           </div>
 
           {info.length > 0 && (
-            <ul class="product-hero_info text-style-small">
+            <ul class="product-hero_info text-style-h6">
               {info.map((row) => <li>{row}</li>)}
             </ul>
           )}
@@ -590,26 +590,37 @@ const summary = (size: string) => (hasRefill ? `${size} · Iconic Edition` : siz
       }
     }
 
-    /* Info: three cells side by side between two rules. */
+    /* Info: plain notes, each led by a small square so they read as text, not controls. */
     .product-hero_info {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      border-block: var(--border-width) solid var(--text);
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.375rem 1rem;
     }
 
     .product-hero_info li {
-      padding: 0.75rem 0.625rem;
-      border-left: var(--border-width) solid var(--text);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
 
-      &:first-child {
-        padding-left: 0;
-        border-left: 0;
+      &::before {
+        content: "";
+        flex: none;
+        width: 0.25rem;
+        height: 0.25rem;
+        background: currentColor;
+      }
+    }
+
+    /* Phones: one note per line. */
+    @media (width < 48rem) {
+      .product-hero_info {
+        flex-direction: column;
       }
     }
 
     @media (width >= 48rem) {
-      .product-hero_info li {
-        padding: 0.875rem 1rem;
+      .product-hero_info {
+        gap: 0.5rem 1.5rem;
       }
     }
 
