@@ -29,8 +29,8 @@ const { render = true, tag, title, image, imageAlt = "", items = [], fullList } 
     <div class="product-ingredients_wrap">
       <div class="product-ingredients_top">
         <div class="product-ingredients_title">
-          {tag && <Eyebrow variant="tag">{tag}</Eyebrow>}
           <h2 class="text-style-h2">{title}</h2>
+          {tag && <Eyebrow variant="tag">{tag}</Eyebrow>}
         </div>
         <div class="product-ingredients_visual">
           <Image src={image} alt={imageAlt} widths={[500, 800, 1200]} sizes="(width >= 64rem) 40vw, 100vw" />
