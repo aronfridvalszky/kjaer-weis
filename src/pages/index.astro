@@ -24,6 +24,9 @@ import allure from "@/assets/images/press/allure.png";
 import byrdie from "@/assets/images/press/byrdie.png";
 import glamour from "@/assets/images/press/glamour.png";
 import essence from "@/assets/images/press/essence.png";
+import refillCase from "@/assets/images/refill/keep-the-case.jpg";
+import refillOrder from "@/assets/images/refill/order-the-refill.jpg";
+import refillRed from "@/assets/images/refill/red-edition.jpg";
 import papayaRitual from "@/assets/images/journal/papaya-ritual.jpg";
 import dropperSerum from "@/assets/images/journal/dropper-serum.jpg";
 ---
@@ -75,12 +78,23 @@ import dropperSerum from "@/assets/images/journal/dropper-serum.jpg";
     accent="Endless refills"
     text="Since 2010 — the first luxury beauty brand to launch with refillable packaging."
     steps={[
-      "Keep the case — it is made for life.",
-      "Order the refill when you run out.",
-      "Slip it in. Recycle the red box. Repeat.",
+      {
+        text: "Keep the case — it is made for life.",
+        image: refillCase,
+        imageAlt: "Silver Iconic Edition cases stacked together",
+      },
+      {
+        text: "Order the refill when you run out.",
+        image: refillOrder,
+        imageAlt: "White paper refill packs laid out in rows",
+      },
+      {
+        text: "Slip it in. Recycle the red box. Repeat.",
+        image: refillRed,
+        imageAlt: "Red Edition paper cases with the Kjær Weis wordmark",
+      },
     ]}
     buttonLabel="How refills work"
-    model="/models/kjaerweis-lipstick.glb"
   />
 
   {/* About */}

@@ -89,6 +89,42 @@ const inline = [vars("m", mobile), vars("d", desktop), style].filter(Boolean).jo
   </div>
 )}
 
+{/* No-JS fallback: show both lines without their intro. */}
+<noscript>
+  <style>
+    .display-pair_line,
+    .display-pair_accent {
+      opacity: 1 !important;
+    }
+  </style>
+</noscript>
+
+<script>
+  import { gsap } from "gsap";
+  import { ScrollTrigger } from "gsap/ScrollTrigger";
+
+  gsap.registerPlugin(ScrollTrigger);
+
+  /* Intro: both lines rise from below, the accent a beat after the first. */
+  if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    document.querySelectorAll<HTMLElement>(".display-pair_wrap").forEach((pair) => {
+      const lines = pair.querySelectorAll(".display-pair_line, .display-pair_accent");
+      gsap.fromTo(
+        lines,
+        { opacity: 0, yPercent: 60 },
+        {
+          opacity: 1,
+          yPercent: 0,
+          duration: 1.1,
+          ease: "power3.out",
+          stagger: 0.15,
+          scrollTrigger: { trigger: pair, start: "top 85%", once: true },
+        },
+      );
+    });
+  }
+</script>
+
 <style is:global>
   @layer components {
     .display-pair_wrap {
@@ -121,6 +157,14 @@ const inline = [vars("m", mobile), vars("d", desktop), style].filter(Boolean).jo
       display: block;
       white-space: nowrap;
       text-box: normal;
+    }
+
+    /* Hidden until the intro plays; see the script and the no-JS fallback. */
+    @media (prefers-reduced-motion: no-preference) {
+      .display-pair_line,
+      .display-pair_accent {
+        opacity: 0;
+      }
     }
 
     .display-pair_line {
