@@ -199,7 +199,7 @@
   --text-small-font-weight: var(--primary-regular);
   --text-small-text-wrap: pretty;
 
-  --text-caption: 0.8125rem;
+  --text-caption: 0.6875rem;
   --text-caption-line-height: 1.4;
 
   --text-overline: 0.75rem;

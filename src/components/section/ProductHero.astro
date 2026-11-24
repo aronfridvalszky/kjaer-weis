@@ -115,13 +115,17 @@ const summary = (size: string) => (hasRefill ? `${size} · Iconic Edition` : siz
               </ul>
             )}
             <h1 class="product-hero_title text-style-h3">{data.name}</h1>
-            {data.rating && (
-              <a class="product-hero_rating text-style-small" href="#reviews">
-                <span class="product-hero_stars" aria-hidden="true">★★★★★</span>
-                <span>{data.rating.score} · {data.rating.count} reviews</span>
-              </a>
+            {(data.rating || data.description) && (
+              <div class="product-hero_meta">
+                {data.rating && (
+                  <a class="product-hero_rating text-style-small" href="#reviews">
+                    <span class="product-hero_stars" aria-hidden="true">★★★★★</span>
+                    <span>{data.rating.score} · {data.rating.count} reviews</span>
+                  </a>
+                )}
+                {data.description && <p class="text-style-large">{data.description}</p>}
+              </div>
             )}
-            {data.description && <p class="text-style-large">{data.description}</p>}
             <p class="product-hero_price">
               <span class="text-style-price" data-buy-price>{current.price}</span>
               <span class="text-style-small" data-buy-summary>{summary(current.label)}</span>
@@ -432,7 +436,14 @@ const summary = (size: string) => (hasRefill ? `${size} · Iconic Edition` : siz
       display: flex;
       flex-direction: column;
       align-items: start;
-      gap: 1rem;
+      gap: clamp(1.25rem, 1.157rem + 0.381vw, 1.5rem);
+    }
+
+    /* Rating and description sit closer together than the rest. */
+    .product-hero_meta {
+      display: flex;
+      flex-direction: column;
+      gap: clamp(0.75rem, 0.657rem + 0.381vw, 1rem);
     }
 
     .product-hero_badges {
@@ -579,9 +590,27 @@ const summary = (size: string) => (hasRefill ? `${size} · Iconic Edition` : siz
       }
     }
 
+    /* Info: three cells side by side between two rules. */
+    .product-hero_info {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      border-block: var(--border-width) solid var(--text);
+    }
+
     .product-hero_info li {
-      padding-block: 0.75rem;
-      border-top: var(--border-width) solid var(--text);
+      padding: 0.75rem 0.625rem;
+      border-left: var(--border-width) solid var(--text);
+
+      &:first-child {
+        padding-left: 0;
+        border-left: 0;
+      }
+    }
+
+    @media (width >= 48rem) {
+      .product-hero_info li {
+        padding: 0.875rem 1rem;
+      }
     }
 
     /* Mobile keeps the label short, as in the 390 frame. */

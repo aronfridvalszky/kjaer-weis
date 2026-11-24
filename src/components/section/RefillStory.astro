@@ -125,11 +125,15 @@ const {
   /* Without motion the markup's own state shows: step one active, its photo in place. */
   const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)");
 
-  /* Scroll per step, in viewport heights, and the length of one step change in seconds. */
-  const STEP_SCROLL = 0.7;
-  const STEP_DURATION = 0.9;
-  /* Scroll held on the last step before the page moves on, in steps. */
-  const LAST_HOLD = 1;
+  /*
+   * The carousel is laid out in timeline units: a short lead-in, one unit per
+   * step change, a hold between changes and a longer hold after the last.
+   * UNIT_SCROLL turns a unit into scroll distance, in viewport heights.
+   */
+  const UNIT_SCROLL = 0.4;
+  const LEAD_IN = 0.3;
+  const HOLD = 0.6;
+  const LAST_HOLD = 1.2;
 
   /*
    * Each step label holds two set texts, a small one-liner and the large active
@@ -165,44 +169,38 @@ const {
     gsap.set(slides, { yPercent: 100, opacity: 1 });
     gsap.set(slides.map(photo), { yPercent: -60 });
 
-    /* One change per second of timeline: state n sits at time n. */
-    const changes = gsap.timeline({ paused: true, defaults: { duration: 1, ease: "power3.inOut" } });
+    /*
+     * Scrubbed straight from the scroll position. Lenis already smooths the
+     * scroll, so the changes move with the same easing as the rest of the page.
+     */
+    const timeline = gsap.timeline({ defaults: { duration: 1, ease: "power2.inOut" } });
+    let time = LEAD_IN;
     steps.forEach((step, index) => {
       const slide = slides[index];
       const previous = slides[index - 1];
 
       /* The step text grows while the one before shrinks back. */
-      changes.to(step, { "--_p": 1 }, index);
-      if (index > 0) changes.to(steps[index - 1], { "--_p": 0 }, index);
+      timeline.to(step, { "--_p": 1 }, time);
+      if (index > 0) timeline.to(steps[index - 1], { "--_p": 0 }, time);
 
       /* The photo leaves upward out of its frame as the next one rises in. */
-      if (slide) changes.to(slide, { yPercent: 0 }, index).to(photo(slide), { yPercent: 0 }, index);
-      if (previous) changes.to(previous, { yPercent: -100 }, index).to(photo(previous), { yPercent: 60 }, index);
+      if (slide) timeline.to(slide, { yPercent: 0 }, time).to(photo(slide), { yPercent: 0 }, time);
+      if (previous) timeline.to(previous, { yPercent: -100 }, time).to(photo(previous), { yPercent: 60 }, time);
+
+      time += 1 + (index < steps.length - 1 ? HOLD : 0);
     });
+    timeline.set({}, {}, time + LAST_HOLD);
 
-    /* Scrolling only picks the step; each change then plays at its own pace. */
-    let current = 0;
-    const show = (state: number) => {
-      if (state === current) return;
-      const distance = Math.abs(state - current);
-      current = state;
-      changes.tweenTo(state, { duration: STEP_DURATION * Math.sqrt(distance), ease: "none" });
-    };
-
-    const scrollUnits = steps.length - 1 + LAST_HOLD + 0.7;
     ScrollTrigger.create({
       trigger: section,
       start: "top top",
-      end: () => `+=${window.innerHeight * STEP_SCROLL * scrollUnits}`,
+      end: () => `+=${window.innerHeight * UNIT_SCROLL * timeline.duration()}`,
       pin: true,
       /* The parent is a flex column, where GSAP turns spacing off by default. */
       pinSpacing: true,
+      scrub: true,
+      animation: timeline,
       invalidateOnRefresh: true,
-      onUpdate: (self) => {
-        /* Step one shows after a short scroll; the last one holds for LAST_HOLD. */
-        const units = self.progress * scrollUnits;
-        show(Math.min(steps.length, Math.floor(units + 0.7)));
-      },
     });
   });
 </script>
