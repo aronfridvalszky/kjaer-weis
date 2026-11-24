@@ -1,6 +1,7 @@
 import * as THREE from "three";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { MeshoptDecoder } from "three/addons/libs/meshopt_decoder.module.js";
+import { HDRLoader } from "three/addons/loaders/HDRLoader.js";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
@@ -10,6 +11,8 @@ gsap.registerPlugin(ScrollTrigger);
 const TWIST = Math.PI * 2;
 const BULLET_DROP = 14.5;
 const SCROLL_LENGTH = () => window.innerHeight * 1;
+/* Strength of the studio HDRI under the softboxes. */
+const HDRI_INTENSITY = 0.8;
 
 /* Aspect the Blender cameras were framed for. */
 const AUTHORED_ASPECT = 4 / 5;
@@ -18,22 +21,31 @@ type Options = {
   holder: HTMLElement;
   section: HTMLElement;
   model: string;
+  /** Equirectangular .hdr for the studio light. Omit for the built-in room. */
+  environment?: string;
   /** Show the end state without scroll animation. */
   still?: boolean;
 };
 
-/* Studio light: a light grey room, three softboxes and dark flags, seen only in reflections. Units are mm. */
-function studioEnvironment(renderer: THREE.WebGLRenderer, camera: THREE.Object3D) {
+/*
+ * Studio light, seen only in reflections: the HDRI (or a light grey room without one)
+ * plus three softboxes. Units are mm.
+ */
+function studioEnvironment(renderer: THREE.WebGLRenderer, camera: THREE.Object3D, hdri: THREE.Texture | null) {
   const room = new THREE.Scene();
   const emissive = (k: number, side: THREE.Side = THREE.DoubleSide) =>
     new THREE.MeshBasicMaterial({ color: new THREE.Color(0xffffff).multiplyScalar(k), side });
 
-  room.add(new THREE.Mesh(new THREE.SphereGeometry(800, 48, 24), emissive(0.6, THREE.BackSide)));
-
-  const floor = new THREE.Mesh(new THREE.PlaneGeometry(4000, 4000), emissive(0.08));
-  floor.rotation.x = -Math.PI / 2;
-  floor.position.y = -150;
-  room.add(floor);
+  if (hdri) {
+    room.background = hdri;
+    room.backgroundIntensity = HDRI_INTENSITY;
+  } else {
+    room.add(new THREE.Mesh(new THREE.SphereGeometry(800, 48, 24), emissive(0.6, THREE.BackSide)));
+    const floor = new THREE.Mesh(new THREE.PlaneGeometry(4000, 4000), emissive(0.08));
+    floor.rotation.x = -Math.PI / 2;
+    floor.position.y = -150;
+    room.add(floor);
+  }
 
   /* Positions are relative to the camera: `across` to its right, `toward` it. */
   const toCamera = new THREE.Vector3(camera.position.x, 0, camera.position.z).normalize();
@@ -51,14 +63,17 @@ function studioEnvironment(renderer: THREE.WebGLRenderer, camera: THREE.Object3D
   panel(15, 120, 60, 20, 40, 8);
   /* Angled strip above and behind. */
   panel(120, 30, 0, -40, 90, 8).lookAt(0, 0, 0);
-  /* Dark flags for contrast bands in the chrome. */
-  panel(30, 200, -120, -60, 40, 0.02);
-  panel(30, 200, 120, -60, 40, 0.02);
-  panel(40, 200, 0, -200, 40, 0.03);
+  /* Without the HDRI, dark flags give the chrome its contrast bands. */
+  if (!hdri) {
+    panel(30, 200, -120, -60, 40, 0.02);
+    panel(30, 200, 120, -60, 40, 0.02);
+    panel(40, 200, 0, -200, 40, 0.03);
+  }
 
   const pmrem = new THREE.PMREMGenerator(renderer);
   const texture = pmrem.fromScene(room, 0.01, 1, 2000).texture;
   pmrem.dispose();
+  hdri?.dispose();
   room.traverse((node) => {
     if (node instanceof THREE.Mesh) {
       node.geometry.dispose();
@@ -68,7 +83,7 @@ function studioEnvironment(renderer: THREE.WebGLRenderer, camera: THREE.Object3D
   return texture;
 }
 
-export async function mountLipstickTwist({ holder, section, model, still = false }: Options) {
+export async function mountLipstickTwist({ holder, section, model, environment, still = false }: Options) {
   let renderer: THREE.WebGLRenderer;
   try {
     renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
@@ -84,9 +99,16 @@ export async function mountLipstickTwist({ holder, section, model, still = false
   renderer.domElement.setAttribute("aria-hidden", "true");
 
   const loader = new GLTFLoader().setMeshoptDecoder(MeshoptDecoder);
+  const hdriLoad = environment
+    ? new HDRLoader().loadAsync(environment).then(
+        (texture) => ((texture.mapping = THREE.EquirectangularReflectionMapping), texture),
+        () => null,
+      )
+    : Promise.resolve(null);
   let gltf;
+  let hdri: THREE.Texture | null;
   try {
-    gltf = await loader.loadAsync(model);
+    [gltf, hdri] = await Promise.all([loader.loadAsync(model), hdriLoad]);
   } catch {
     renderer.dispose();
     return;
@@ -112,7 +134,7 @@ export async function mountLipstickTwist({ holder, section, model, still = false
     10000,
   );
 
-  scene.environment = studioEnvironment(renderer, camEnd);
+  scene.environment = studioEnvironment(renderer, camEnd, hdri);
   scene.environmentIntensity = 1;
 
   /* Camera poses in world space (the glTF cameras look down their own −Z). */

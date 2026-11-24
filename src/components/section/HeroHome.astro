@@ -23,6 +23,8 @@ type Props = Pick<
   meta?: string[];
   /** 3D model URL. Omit to show only the still render. */
   model?: string;
+  /** Studio HDRI that lights the model. */
+  environment?: string;
 };
 
 const {
@@ -34,6 +36,7 @@ const {
   buttonHref = "#",
   meta = [],
   model,
+  environment,
   theme = "cream",
   paddingTop = "none",
   paddingBottom = "none",
@@ -56,7 +59,7 @@ const {
           <span class="hero-home_line text-style-display">{title}</span>
           <span class="hero-home_accent text-style-accent">{accent}</span>
         </h1>
-        <div class="hero-home_object" data-model={model}>
+        <div class="hero-home_object" data-model={model} data-environment={environment}>
           <Image
             class="hero-home_poster"
             src={poster}
@@ -89,18 +92,48 @@ const {
   </Section>
 )}
 
+{/* No-JS fallback: show the title without its intro. */}
+<noscript>
+  <style>
+    .hero-home_line,
+    .hero-home_accent {
+      opacity: 1;
+    }
+  </style>
+</noscript>
+
 <script>
+  import { gsap } from "gsap";
+
   const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)");
+
+  /* Title intro: the display line from the left, the accent from the right a beat later. */
+  document.querySelectorAll<HTMLElement>("[data-hero-home]").forEach((section) => {
+    const line = section.querySelector(".hero-home_line");
+    const accent = section.querySelector(".hero-home_accent");
+    if (!line || !accent) return;
+
+    if (prefersReduced.matches) {
+      gsap.set([line, accent], { opacity: 1 });
+      return;
+    }
+
+    gsap
+      .timeline({ defaults: { duration: 1.2, ease: "power3.out" } })
+      .fromTo(line, { opacity: 0, xPercent: -8 }, { opacity: 1, xPercent: 0 }, 0)
+      .fromTo(accent, { opacity: 0, xPercent: 8 }, { opacity: 1, xPercent: 0 }, 0.15);
+  });
 
   document.querySelectorAll<HTMLElement>("[data-hero-home]").forEach((section) => {
     const holder = section.querySelector<HTMLElement>(".hero-home_object");
     const model = holder?.dataset.model;
+    const environment = holder?.dataset.environment;
     if (!holder || !model) return;
 
     /* Reduced motion: the end state, without the scroll twist. */
     const start = () =>
       import("@/scripts/lipstick-twist.ts").then(({ mountLipstickTwist }) =>
-        mountLipstickTwist({ holder, section, model, still: prefersReduced.matches }),
+        mountLipstickTwist({ holder, section, model, environment, still: prefersReduced.matches }),
       );
 
     if ("requestIdleCallback" in window) {
@@ -145,6 +178,8 @@ const {
       display: block;
       white-space: nowrap;
       text-box: normal;
+      /* Hidden until the intro plays; see the script and the no-JS fallback. */
+      opacity: 0;
     }
 
     .hero-home_line {
