@@ -105,7 +105,7 @@ const inline = [vars("m", mobile), vars("d", desktop), style].filter(Boolean).jo
 
   gsap.registerPlugin(ScrollTrigger);
 
-  /* Intro: both lines rise from below, the accent a beat after the first. */
+  /* Intro: both lines rise from below, the accent a beat after the first, once the pair is 20% up the screen. */
   if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
     document.querySelectorAll<HTMLElement>(".display-pair_wrap").forEach((pair) => {
       const lines = pair.querySelectorAll(".display-pair_line, .display-pair_accent");
@@ -118,7 +118,7 @@ const inline = [vars("m", mobile), vars("d", desktop), style].filter(Boolean).jo
           duration: 1.1,
           ease: "power3.out",
           stagger: 0.15,
-          scrollTrigger: { trigger: pair, start: "top 85%", once: true },
+          scrollTrigger: { trigger: pair, start: "top 80%", once: true },
         },
       );
     });

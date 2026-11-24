@@ -61,6 +61,49 @@ const { render = true, tag, title, image, imageAlt = "", items = [], fullList } 
   </Section>
 )}
 
+{/* No-JS fallback: show the rows without their intro. */}
+<noscript>
+  <style>
+    .product-ingredients_item {
+      --_line: 1 !important;
+    }
+    .product-ingredients_item > * {
+      opacity: 1 !important;
+    }
+  </style>
+</noscript>
+
+<script>
+  import { gsap } from "gsap";
+  import { ScrollTrigger } from "gsap/ScrollTrigger";
+
+  gsap.registerPlugin(ScrollTrigger);
+
+  /*
+   * Rows come in one after another once the list is 20% up the screen:
+   * each rule draws from the left, then its contents rise in.
+   */
+  if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    document.querySelectorAll<HTMLElement>(".product-ingredients_list").forEach((list) => {
+      const rows = gsap.utils.toArray<HTMLElement>(".product-ingredients_item", list);
+      const timeline = gsap.timeline({
+        scrollTrigger: { trigger: list, start: "top 80%", once: true },
+      });
+      rows.forEach((row, index) => {
+        const at = index * 0.22;
+        timeline
+          .to(row, { "--_line": 1, duration: 0.9, ease: "power3.inOut" }, at)
+          .fromTo(
+            row.children,
+            { opacity: 0, yPercent: 40 },
+            { opacity: 1, yPercent: 0, duration: 0.9, ease: "power3.out", stagger: 0.06 },
+            at + 0.25,
+          );
+      });
+    });
+  }
+</script>
+
 <style is:global>
   @layer components {
     .product-ingredients_wrap {
@@ -105,11 +148,34 @@ const { render = true, tag, title, image, imageAlt = "", items = [], fullList } 
     }
 
     .product-ingredients_item {
+      --_line: 1;
+      position: relative;
       display: grid;
       grid-template-columns: minmax(0, 1fr);
       gap: 1.25rem;
       padding-block: 1.75rem;
-      border-top: var(--border-width) solid var(--text);
+
+      /* The top rule, drawn from the left as the row comes in. */
+      &::before {
+        content: "";
+        position: absolute;
+        inset: 0 0 auto;
+        height: var(--border-width);
+        background: var(--text);
+        transform: scaleX(var(--_line));
+        transform-origin: left;
+      }
+    }
+
+    /* Hidden until the rows come in; see the script and the no-JS fallback. */
+    @media (prefers-reduced-motion: no-preference) {
+      .product-ingredients_item {
+        --_line: 0;
+
+        & > * {
+          opacity: 0;
+        }
+      }
     }
 
     .product-ingredients_name {
