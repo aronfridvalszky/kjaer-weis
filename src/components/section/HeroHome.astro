@@ -104,6 +104,10 @@ const {
 
 <script>
   import { gsap } from "gsap";
+  import { ScrollTrigger } from "gsap/ScrollTrigger";
+  import type { TwistProgress } from "@/scripts/lipstick-twist.ts";
+
+  gsap.registerPlugin(ScrollTrigger);
 
   const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)");
 
@@ -124,16 +128,52 @@ const {
       .fromTo(accent, { opacity: 0, xPercent: 8 }, { opacity: 1, xPercent: 0 }, 0.15);
   });
 
+  /* Scroll per twist, in viewport heights. */
+  const SCROLL_LENGTH = 1;
+
   document.querySelectorAll<HTMLElement>("[data-hero-home]").forEach((section) => {
     const holder = section.querySelector<HTMLElement>(".hero-home_object");
     const model = holder?.dataset.model;
     const environment = holder?.dataset.environment;
     if (!holder || !model) return;
 
+    /*
+     * The pin is set up right away, not when the model arrives, so every
+     * ScrollTrigger further down the page measures the final layout.
+     */
+    let progress: TwistProgress | undefined;
+    if (!prefersReduced.matches) {
+      const listeners = new Set<() => void>();
+      const scroll = { value: 0 };
+      progress = {
+        get value() {
+          return scroll.value;
+        },
+        subscribe: (callback) => void listeners.add(callback),
+      };
+      gsap.to(scroll, {
+        value: 1,
+        ease: "none",
+        onUpdate: () => listeners.forEach((callback) => callback()),
+        scrollTrigger: {
+          trigger: section,
+          start: "top top",
+          end: () => `+=${window.innerHeight * SCROLL_LENGTH}`,
+          pin: true,
+          /* The parent is a flex column, where GSAP turns spacing off by default. */
+          pinSpacing: true,
+          scrub: 0.6,
+          invalidateOnRefresh: true,
+          /* First on the page: measure it before the triggers below it. */
+          refreshPriority: 10,
+        },
+      });
+    }
+
     /* Reduced motion: the end state, without the scroll twist. */
     const start = () =>
       import("@/scripts/lipstick-twist.ts").then(({ mountLipstickTwist }) =>
-        mountLipstickTwist({ holder, section, model, environment, still: prefersReduced.matches }),
+        mountLipstickTwist({ holder, model, environment, progress }),
       );
 
     if ("requestIdleCallback" in window) {
@@ -163,7 +203,8 @@ const {
       position: relative;
       container-type: inline-size;
       aspect-ratio: 350 / 357;
-      width: 100%;
+      /* Title and lipstick scale as one piece, held to the screen height. */
+      width: min(88%, 42svh);
     }
 
     .hero-home_title {
@@ -254,6 +295,7 @@ const {
       .hero-home_stage {
         --_w: 1360;
         aspect-ratio: 1360 / 640;
+        width: min(78%, 100svh);
       }
 
       .hero-home_line {

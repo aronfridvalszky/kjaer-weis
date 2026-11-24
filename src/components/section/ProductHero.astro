@@ -232,6 +232,8 @@ const summary = (size: string) => (hasRefill ? `${size} · Iconic Edition` : siz
 )}
 
 <script>
+  import { scrollToCenter } from "@/scripts/smooth-scroll.ts";
+
   document.querySelectorAll<HTMLElement>("[data-product-hero]").forEach((hero) => {
     /* Gallery */
     const slides = [...hero.querySelectorAll<HTMLElement>(".product-hero_slide")];
@@ -297,7 +299,7 @@ const summary = (size: string) => (hasRefill ? `${size} · Iconic Edition` : siz
         bar.setAttribute("aria-hidden", String(!visible));
       }).observe(actions);
       bar.querySelector("[data-buy-scroll]")?.addEventListener("click", () => {
-        actions.scrollIntoView({ behavior: "smooth", block: "center" });
+        scrollToCenter(actions);
       });
     }
   });

@@ -3,28 +3,30 @@ import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { MeshoptDecoder } from "three/addons/libs/meshopt_decoder.module.js";
 import { HDRLoader } from "three/addons/loaders/HDRLoader.js";
 import { gsap } from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
-
-gsap.registerPlugin(ScrollTrigger);
 
 /* Main tuning knobs. */
 const TWIST = Math.PI * 2;
 const BULLET_DROP = 14.5;
-const SCROLL_LENGTH = () => window.innerHeight * 1;
 /* Strength of the studio HDRI under the softboxes. */
 const HDRI_INTENSITY = 0.8;
 
 /* Aspect the Blender cameras were framed for. */
 const AUTHORED_ASPECT = 4 / 5;
 
+/** Scroll progress from 0 to 1, owned by the hero's pinned ScrollTrigger. */
+export type TwistProgress = {
+  value: number;
+  /** Calls back whenever `value` changes. */
+  subscribe: (callback: () => void) => void;
+};
+
 type Options = {
   holder: HTMLElement;
-  section: HTMLElement;
   model: string;
   /** Equirectangular .hdr for the studio light. Omit for the built-in room. */
   environment?: string;
-  /** Show the end state without scroll animation. */
-  still?: boolean;
+  /** Scroll progress to follow. Omit to show the end state without animation. */
+  progress?: TwistProgress;
 };
 
 /*
@@ -83,7 +85,7 @@ function studioEnvironment(renderer: THREE.WebGLRenderer, camera: THREE.Object3D
   return texture;
 }
 
-export async function mountLipstickTwist({ holder, section, model, environment, still = false }: Options) {
+export async function mountLipstickTwist({ holder, model, environment, progress }: Options) {
   let renderer: THREE.WebGLRenderer;
   try {
     renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
@@ -150,7 +152,15 @@ export async function mountLipstickTwist({ holder, section, model, environment, 
 
   /* Exported transforms are the end state. */
   const bulletEnd = bullet.position.y;
-  const state = { twist: still ? 0 : 1, rise: still ? 1 : 0, camera: still ? 1 : 0 };
+  /* Twist and rise track the scroll 1:1; the camera eases. */
+  const cameraEase = gsap.parseEase("power2.inOut");
+  const state = { twist: 0, rise: 1, camera: 1 };
+  const follow = () => {
+    const value = progress ? progress.value : 1;
+    state.twist = 1 - value;
+    state.rise = value;
+    state.camera = cameraEase(value);
+  };
 
   /* Wider or narrower canvases: move back along the view axis to keep the framing. */
   let pullBack = 1;
@@ -174,6 +184,7 @@ export async function mountLipstickTwist({ holder, section, model, environment, 
   let queued = false;
   const render = () => {
     queued = false;
+    follow();
     apply();
     renderer.render(scene, camera);
   };
@@ -199,22 +210,5 @@ export async function mountLipstickTwist({ holder, section, model, environment, 
   render();
   holder.classList.add("is-live");
 
-  if (still) return;
-
-  gsap
-    .timeline({
-      onUpdate: requestRender,
-      scrollTrigger: {
-        trigger: section,
-        start: "top top",
-        end: () => `+=${SCROLL_LENGTH()}`,
-        pin: true,
-        /* The parent is a flex column, where GSAP turns spacing off by default. */
-        pinSpacing: true,
-        scrub: 0.6,
-        invalidateOnRefresh: true,
-      },
-    })
-    .to(state, { twist: 0, rise: 1, ease: "none", duration: 1 }, 0)
-    .to(state, { camera: 1, ease: "power2.inOut", duration: 1 }, 0);
+  progress?.subscribe(requestRender);
 }

@@ -122,8 +122,11 @@ const {
   /* Without motion the markup's own state shows: step one active, its photo in place. */
   const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)");
 
-  /* Scroll per step change, in viewport heights. */
-  const STEP_SCROLL = 1;
+  /* Scroll per step, in viewport heights, and the length of one step change in seconds. */
+  const STEP_SCROLL = 0.9;
+  const STEP_DURATION = 1.4;
+  /* Scroll held on the last step before the page moves on, in steps. */
+  const LAST_HOLD = 1;
 
   document.querySelectorAll<HTMLElement>("[data-refill-story]").forEach((section) => {
     const steps = gsap.utils.toArray<HTMLElement>(".refill-story_step", section);
@@ -137,64 +140,45 @@ const {
     gsap.set(slides, { yPercent: 100, opacity: 1 });
     gsap.set(slides.map(photo), { yPercent: -60 });
 
-    const timeline = gsap.timeline({
-      defaults: { duration: 1, ease: "power2.inOut" },
-      scrollTrigger: {
-        trigger: section,
-        start: "top top",
-        end: () => `+=${window.innerHeight * STEP_SCROLL * (steps.length + 1)}`,
-        pin: true,
-        /* The parent is a flex column, where GSAP turns spacing off by default. */
-        pinSpacing: true,
-        scrub: 0.6,
-        snap: {
-          snapTo: (value, self) => snapToStep(value, self?.direction ?? 1),
-          duration: { min: 0.2, max: 0.6 },
-          delay: 0.08,
-          ease: "power1.inOut",
-        },
-        invalidateOnRefresh: true,
-      },
-    });
-
-    timeline.addLabel("start", 0);
-    let time = 0;
+    /* One change per second of timeline: state n sits at time n. */
+    const changes = gsap.timeline({ paused: true, defaults: { duration: 1, ease: "power3.inOut" } });
     steps.forEach((step, index) => {
       const slide = slides[index];
       const previous = slides[index - 1];
 
       /* The step text grows while the one before shrinks back. */
-      timeline.to(step, { "--_p": 1 }, time);
-      if (index > 0) timeline.to(steps[index - 1], { "--_p": 0 }, time);
+      changes.to(step, { "--_p": 1 }, index);
+      if (index > 0) changes.to(steps[index - 1], { "--_p": 0 }, index);
 
       /* The photo leaves upward out of its frame as the next one rises in. */
-      if (slide) {
-        timeline.to(slide, { yPercent: 0 }, time).to(photo(slide), { yPercent: 0 }, time);
-      }
-      if (previous) {
-        timeline.to(previous, { yPercent: -100 }, time).to(photo(previous), { yPercent: 60 }, time);
-      }
-
-      timeline.addLabel(`step-${index + 1}`, time + 1);
-      time += 1.5;
+      if (slide) changes.to(slide, { yPercent: 0 }, index).to(photo(slide), { yPercent: 0 }, index);
+      if (previous) changes.to(previous, { yPercent: -100 }, index).to(photo(previous), { yPercent: 60 }, index);
     });
 
-    /* A short hold on the last step before the page scrolls on. */
-    timeline.to({}, { duration: 1 }, time - 0.5);
+    /* Scrolling only picks the step; each change then plays at its own pace. */
+    let current = 0;
+    const show = (state: number) => {
+      if (state === current) return;
+      const distance = Math.abs(state - current);
+      current = state;
+      changes.tweenTo(state, { duration: STEP_DURATION * Math.sqrt(distance), ease: "none" });
+    };
 
-    /*
-     * Snap to the steps in the scroll direction. Past the last step nothing snaps,
-     * so the user scrolls through a short hold and on to the next section.
-     */
-    function snapToStep(value: number, direction: number) {
-      const points = ["start", ...steps.map((_, index) => `step-${index + 1}`)].map(
-        (label) => timeline.labels[label] / timeline.duration(),
-      );
-      const last = points[points.length - 1];
-      if (value >= last) return value;
-      if (direction > 0) return points.find((point) => point >= value) ?? last;
-      return [...points].reverse().find((point) => point <= value) ?? 0;
-    }
+    const scrollUnits = steps.length - 1 + LAST_HOLD + 0.7;
+    ScrollTrigger.create({
+      trigger: section,
+      start: "top top",
+      end: () => `+=${window.innerHeight * STEP_SCROLL * scrollUnits}`,
+      pin: true,
+      /* The parent is a flex column, where GSAP turns spacing off by default. */
+      pinSpacing: true,
+      invalidateOnRefresh: true,
+      onUpdate: (self) => {
+        /* Step one shows after a short scroll; the last one holds for LAST_HOLD. */
+        const units = self.progress * scrollUnits;
+        show(Math.min(steps.length, Math.floor(units + 0.7)));
+      },
+    });
   });
 </script>
 

@@ -27,5 +27,9 @@ const { theme = "inherit", ...seo } = Astro.props;
       <slot />
     </main>
     <Footer />
+    <script>
+      import { startSmoothScroll } from "@/scripts/smooth-scroll.ts";
+      startSmoothScroll();
+    </script>
   </body>
 </html>
