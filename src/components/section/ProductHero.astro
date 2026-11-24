@@ -107,6 +107,7 @@ const summary = (size: string) => (hasRefill ? `${size} · Iconic Edition` : siz
 
         <div class="product-hero_buy" data-buy-box>
           <div class="product-hero_intro">
+            <h1 class="product-hero_title text-style-h3">{data.name}</h1>
             {data.badges.length > 0 && (
               <ul class="product-hero_badges">
                 {data.badges.map((badge) => (
@@ -114,7 +115,6 @@ const summary = (size: string) => (hasRefill ? `${size} · Iconic Edition` : siz
                 ))}
               </ul>
             )}
-            <h1 class="product-hero_title text-style-h3">{data.name}</h1>
             {(data.rating || data.description) && (
               <div class="product-hero_meta">
                 {data.rating && (
