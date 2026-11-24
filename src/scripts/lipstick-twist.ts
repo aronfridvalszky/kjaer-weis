@@ -10,6 +10,9 @@ const BULLET_DROP = 14.5;
 /* Strength of the studio HDRI under the softboxes. */
 const HDRI_INTENSITY = 0.8;
 
+/* The canvas is this much larger than its frame (see .hero-home_object canvas). */
+const BLEED = 1.4;
+
 /* Aspect the Blender cameras were framed for. */
 const AUTHORED_ASPECT = 4 / 5;
 
@@ -128,9 +131,11 @@ export async function mountLipstickTwist({ holder, model, environment, progress 
     return;
   }
 
+  /* Widen the authored lens to cover the bleed: same perspective, more margin. */
   const source = gltf.cameras[0] as THREE.PerspectiveCamera | undefined;
+  const authoredFov = THREE.MathUtils.degToRad(source ? source.fov : THREE.MathUtils.radToDeg(0.4174));
   const camera = new THREE.PerspectiveCamera(
-    source ? source.fov : THREE.MathUtils.radToDeg(0.4174),
+    THREE.MathUtils.radToDeg(2 * Math.atan(Math.tan(authoredFov / 2) * BLEED)),
     AUTHORED_ASPECT,
     1,
     10000,
@@ -197,7 +202,7 @@ export async function mountLipstickTwist({ holder, model, environment, progress 
   const resize = () => {
     const { width, height } = holder.getBoundingClientRect();
     if (!width || !height) return;
-    renderer.setSize(width, height, false);
+    renderer.setSize(width * BLEED, height * BLEED, false);
     camera.aspect = width / height;
     pullBack = camera.aspect < AUTHORED_ASPECT ? AUTHORED_ASPECT / camera.aspect : 1;
     camera.updateProjectionMatrix();

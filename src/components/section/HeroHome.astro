@@ -244,29 +244,36 @@ const {
       aspect-ratio: 4 / 5;
       pointer-events: none;
 
-      & canvas,
       & .hero-home_poster {
         position: absolute;
         inset: 0;
         width: 100%;
         height: 100%;
         object-fit: contain;
-        background: transparent;
-        transition: opacity 600ms var(--hover-ease);
       }
 
+      /*
+       * The canvas bleeds 20% past the frame on every side (BLEED in
+       * lipstick-twist.ts), so the camera move never clips the lipstick.
+       */
       & canvas {
-        opacity: 0;
+        position: absolute;
+        left: -20%;
+        top: -20%;
+        width: 140%;
+        max-width: none;
+        height: 140%;
+        background: transparent;
+        visibility: hidden;
       }
 
+      /* Swap in one frame: the poster and the first render match, so nothing doubles up. */
       &.is-live canvas {
-        opacity: 1;
+        visibility: visible;
       }
 
       &.is-live .hero-home_poster {
-        opacity: 0;
-        transition-duration: 0s;
-        transition-delay: 600ms;
+        visibility: hidden;
       }
     }
 
@@ -290,30 +297,50 @@ const {
       border-top: var(--border-width) solid var(--text);
     }
 
+    /* Desktop: the lipstick on the left, the title on the right. */
     @media (width >= 48rem) {
-      /* Display pair artboard — desktop 1360 × 640 */
       .hero-home_stage {
-        --_w: 1360;
-        aspect-ratio: 1360 / 640;
-        width: min(78%, 100svh);
-      }
-
-      .hero-home_line {
-        left: calc(-10 / var(--_w) * 100 * var(--_u));
-        top: calc(10 / var(--_w) * 100 * var(--_u));
-        font-size: calc(300 / var(--_w) * 100 * var(--_u));
-      }
-
-      .hero-home_accent {
-        left: calc(790 / var(--_w) * 100 * var(--_u));
-        top: calc(260 / var(--_w) * 100 * var(--_u));
-        font-size: calc(280 / var(--_w) * 100 * var(--_u));
+        --_stage-h: min(60svh, 44vw);
+        display: grid;
+        grid-template-columns: auto minmax(0, 1fr);
+        grid-template-rows: 100%;
+        align-items: center;
+        column-gap: clamp(1.5rem, 5vw, 6rem);
+        width: 100%;
+        height: var(--_stage-h);
+        aspect-ratio: auto;
+        container-type: normal;
       }
 
       .hero-home_object {
-        left: calc(300 / var(--_w) * 100 * var(--_u));
-        top: calc(0 / var(--_w) * 100 * var(--_u));
-        width: calc(600 / var(--_w) * 100 * var(--_u));
+        position: relative;
+        grid-area: 1 / 1;
+        left: auto;
+        top: auto;
+        width: calc(var(--_stage-h) * 0.8);
+        height: var(--_stage-h);
+      }
+
+      /* Title artboard — 760 × 360, the accent set below and to the right. */
+      .hero-home_title {
+        --_w: 760;
+        grid-area: 1 / 2;
+        position: relative;
+        container-type: inline-size;
+        aspect-ratio: 760 / 360;
+        width: min(100%, var(--_stage-h) * 760 / 360);
+      }
+
+      .hero-home_line {
+        left: calc(-6 / var(--_w) * 100 * var(--_u));
+        top: 0;
+        font-size: calc(185 / var(--_w) * 100 * var(--_u));
+      }
+
+      .hero-home_accent {
+        left: calc(250 / var(--_w) * 100 * var(--_u));
+        top: calc(150 / var(--_w) * 100 * var(--_u));
+        font-size: calc(200 / var(--_w) * 100 * var(--_u));
       }
     }
 
